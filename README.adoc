@@ -1,0 +1,119 @@
+= IMAP support for Gatling
+
+The goal of this project is to be able to support IMAP protocol into Gatling.
+
+== Supported commands
+
+For now only LOGIN and SELECT commands are supported.
+
+== Supported checks
+
+ - ok: last response is OK
+ - bad: last response is BAD
+ - hasRecent(Int): one response contains xxx RECENT
+ - hasNoRecent: one response contains 0 RECENT
+
+== Example
+
+You can find a full example into ImapAuthenticationScenario.  Here is the interesting part:
+
+----
+  val feeder = Array(Map("username"->"user1", "password"->"password")).circular
+  val UserCount: Int = 10
+
+  val scn = scenario("ImapAuthentication").feed(feeder)
+    .exec(imap("Connect").connect()).exitHereIfFailed
+    .exec(imap("login").login("${username}","${password}").check(ok))
+    .exec(imap("select").select("INBOX").check(ok, hasRecent(0)))
+
+  setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
+----
+
+== Requirements
+
+You need to install a particular version of imapnio library
+
+
+----
+$ git clone ttps://github.com/jeantil/imapnio.git
+$ cd imapnio
+$ git checkout origin/ugrade_netty
+$ mvn install
+----
+
+== Tests
+
+=== Hint: quick cyrus installation
+
+To easily launch provided integration tests and gatling test, you can run a Cyrus instance with the following commands.
+
+First run Cyrus via Docker:
+
+----
+$ docker run -d --name cyrus -p 143:143 linagora/cyrus-imap
+----
+
+Then create a user:
+
+----
+$ docker exec -ti cyrus bash -c 'echo password | saslpasswd2 -u test -c user1 -p'
+----
+
+And create its INBOX:
+
+----
+$ telnet localhost 143
+. LOGIN cyrus cyrus
+A1 CREATE user.user1
+A2 CREATE user.user1.INBOX
+----
+
+Then you can check all is fine with a new telnet session:
+
+----
+$ telnet localhost 143
+.LOGIN user1 password
+A1 SELECT INBOX
+----
+
+You should obtain the following result:
+
+----
+$ telnet localhost 143
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+* OK [CAPABILITY IMAP4rev1 LITERAL+ ID ENABLE AUTH=PLAIN SASL-IR] test Cyrus IMAP v2.4.17-caldav-beta10-Debian-2.4.17+caldav~beta10-18 server ready
+. LOGIN user1 password
+. OK [CAPABILITY IMAP4rev1 LITERAL+ ID ENABLE ACL RIGHTS=kxte QUOTA MAILBOX-REFERRALS NAMESPACE UIDPLUS NO_ATOMIC_RENAME UNSELECT CHILDREN MULTIAPPEND BINARY CATENATE CONDSTORE ESEARCH SORT SORT=MODSEQ SORT=DISPLAY THREAD=ORDEREDSUBJECT THREAD=REFERENCES ANNOTATEMORE LIST-EXTENDED WITHIN QRESYNC SCAN XLIST X-REPLICATION URLAUTH URLAUTH=BINARY LOGINDISABLED COMPRESS=DEFLATE IDLE] User logged in SESSIONID=<cyrus-28-1478786954-1>
+A1 SELECT INBOX
+* 0 EXISTS
+* 0 RECENT
+* FLAGS (\Answered \Flagged \Draft \Deleted \Seen)
+* OK [PERMANENTFLAGS (\Answered \Flagged \Draft \Deleted \Seen \*)] Ok
+* OK [UIDVALIDITY 1478786897] Ok
+* OK [UIDNEXT 1] Ok
+* OK [HIGHESTMODSEQ 1] Ok
+* OK [URLMECH INTERNAL] Ok
+A1 OK [READ-WRITE] Completed
+----
+
+=== Launch tests
+
+Some simple integration tests are available via:
+
+----
+$ sbt test
+----
+
+Finally execute your gatling scenarios:
+
+----
+$ sbt gatling:test
+----
+
+Or only the specified one:
+
+----
+$ sbt gatling:testOnly com.linagora.gatling.imap.scenario.ImapAuthenticationScenario
+----

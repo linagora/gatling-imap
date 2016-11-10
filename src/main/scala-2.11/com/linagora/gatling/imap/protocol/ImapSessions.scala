@@ -1,0 +1,142 @@
+package com.linagora.gatling.imap.protocol
+
+import java.net.URI
+import java.util
+import java.util.Properties
+
+import akka.actor.{ActorRef, Props, Stash}
+import com.lafaspot.imapnio.client.{IMAPClient, IMAPSession => ClientSession}
+import com.lafaspot.imapnio.listener.IMAPConnectionListener
+import com.lafaspot.logfast.logging.internal.LogPage
+import com.lafaspot.logfast.logging.{LogManager, Logger}
+import com.linagora.gatling.imap.protocol.command.{LoginHandler, SelectHandler}
+import com.sun.mail.imap.protocol.IMAPResponse
+import io.gatling.core.akka.BaseActor
+
+import scala.util.control.NoStackTrace
+
+object ImapSessions {
+  def props(protocol: ImapProtocol): Props = Props(new ImapSessions(protocol))
+}
+
+class ImapSessions(protocol: ImapProtocol) extends BaseActor {
+  val imapClient = new IMAPClient(4)
+
+  override def receive: Receive = {
+    case cmd: Command =>
+      sessionFor(cmd.userId).forward(cmd)
+  }
+
+  private def sessionFor(userId: String) = {
+    context.child(userId).getOrElse(createImapSession(userId))
+  }
+
+  protected def createImapSession(userId: String) = {
+    context.actorOf(ImapSession.props(imapClient, protocol), userId)
+  }
+
+  @scala.throws[Exception](classOf[Exception])
+  override def postStop(): Unit = {
+    super.postStop()
+    imapClient.shutdown()
+  }
+}
+
+private object ImapSession {
+  def props(client: IMAPClient, protocol: ImapProtocol): Props =
+    Props(new ImapSession(client, protocol))
+
+}
+
+private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends BaseActor with Stash {
+  val connectionListener = new IMAPConnectionListener {
+    override def onConnect(session: ClientSession): Unit = {
+      logger.trace("Callback onConnect called")
+      self ! Response.Connected(ImapResponses.empty)
+    }
+
+    override def onMessage(session: ClientSession, response: IMAPResponse): Unit =
+      logger.trace("Callback onMessage called")
+
+
+    override def onDisconnect(session: ClientSession, cause: Throwable): Unit = {
+      logger.trace("Callback onDisconnect called")
+      self ! Response.Disconnected(cause)
+    }
+
+    override def onInactivityTimeout(session: ClientSession): Unit =
+      logger.trace("Callback onInactivityTimeout called")
+
+    override def onResponse(session: ClientSession, tag: String, responses: util.List[IMAPResponse]): Unit =
+      logger.trace("Callback onResponse called")
+  }
+  val uri = new URI(s"imap://${protocol.host}:${protocol.port}")
+  val config: Properties = protocol.config
+  logger.debug(s"connecting to $uri with $config")
+  val session: ClientSession = client.createSession(uri, config, connectionListener, new LogManager(Logger.Level.FATAL, LogPage.DEFAULT_SIZE))
+  private var currentTag: Tag = Tag.initial
+
+  override def receive: Receive = disconnected
+
+  def disconnected: Receive = {
+    case Command.Connect(userId) =>
+      logger.debug(s"got connect request, $userId connecting to $uri")
+      session.connect()
+      context.become(connecting(sender()))
+    case Response.Disconnected(_) => ()
+    case Command.Disconnect(_) => ()
+    case msg =>
+      logger.error(s"disconnected - unexpected message from ${sender.path} " + msg)
+      if (sender.path != self.path)
+        sender ! ImapStateError(s"session for ${self.path.name} is not connected")
+  }
+
+  def connecting(receiver: ActorRef): Receive = {
+    case msg@Response.Connected(responses) =>
+      logger.debug("got connected response")
+      context.become(connected)
+      receiver ! msg
+      unstashAll()
+    case msg@Response.Disconnected(cause) =>
+      context.become(disconnected)
+      receiver ! msg
+      unstashAll()
+    case x =>
+      logger.error(s"connecting - got unexpected message $x")
+      stash
+  }
+
+  def connected: Receive = {
+    case cmd@Command.Login(_, _, _) =>
+      val handler = context.actorOf(LoginHandler.props(session, nextTag()), "login")
+      handler forward cmd
+    case cmd@Command.Select(_, _) =>
+      val handler = context.actorOf(SelectHandler.props(session, nextTag()), "select")
+      handler forward cmd
+    case msg@Response.Disconnected(cause) =>
+      context.become(disconnected)
+    case msg@Command.Disconnect(userId) =>
+      session.disconnect()
+      context.become(disconnecting(sender()))
+
+  }
+
+  private def nextTag() = {
+    val tag = currentTag
+    currentTag = tag.next
+    tag
+  }
+
+  def disconnecting(receiver: ActorRef): Receive = {
+    case msg@Response.Disconnected(cause) =>
+      receiver ! msg
+      context.become(disconnected)
+      unstashAll()
+    case x =>
+      logger.error(s"disconnecting - got unexpected message $x")
+      stash
+  }
+}
+
+case class ImapStateError(msg: String) extends IllegalStateException(msg) with NoStackTrace
+
