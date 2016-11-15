@@ -35,7 +35,7 @@ You need to install a particular version of imapnio library
 
 
 ----
-$ git clone ttps://github.com/jeantil/imapnio.git
+$ git clone https://github.com/jeantil/imapnio.git
 $ cd imapnio
 $ git checkout origin/ugrade_netty
 $ mvn install

@@ -1,10 +1,4 @@
 target
 *~
-.idea
 /bin/
-.cache-main
-.cache-tests
-.classpath
-.project
-.settings/
 results
