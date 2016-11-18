@@ -72,7 +72,7 @@ Then you can check all is fine with a new telnet session:
 
 ----
 $ telnet localhost 143
-.LOGIN user1 password
+. LOGIN user1 password
 A1 SELECT INBOX
 ----
 
