@@ -22,9 +22,18 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
         case Recent(actual) => actual.toInt
       }
   }
+
+  def folderList: Seq[String] = {
+    responses.map(_.toString).filter(_.matches(List.regex))
+      .map {
+        case List(name, null) => name
+        case List(null, quotedName) => quotedName
+      }
+  }
 }
 
 object ImapResponses {
   val empty = ImapResponses(Seq.empty)
   private val Recent = """^\* (\d+) RECENT$""".r
+  private val List = """^^\* LIST .* (?:([^ "]+)|"(.*)")$""".r
 }

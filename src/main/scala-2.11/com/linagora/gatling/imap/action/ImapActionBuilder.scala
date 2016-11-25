@@ -20,6 +20,10 @@ class ImapActionBuilder(requestName: String) {
     ImapSelectActionBuilder(requestName, mailbox, Seq.empty)
   }
 
+  def list(reference: Expression[String], name: Expression[String]): ImapListActionBuilder = {
+    ImapListActionBuilder(requestName, reference, name, Seq.empty)
+  }
+
   def connect(): ImapConnectActionBuilder = {
     ImapConnectActionBuilder(requestName)
   }
@@ -57,6 +61,15 @@ case class ImapSelectActionBuilder(requestName: String, mailbox: Expression[Stri
     SelectAction.props(ctx, requestName, checks, mailbox)
 
   override val actionName: String = "select-action"
+}
+
+case class ImapListActionBuilder(requestName: String, reference: Expression[String], name: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapListActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    ListAction.props(ctx, requestName, checks, reference, name)
+
+  override val actionName: String = "list-action"
 }
 
 case class ImapConnectActionBuilder(requestName: String) extends ImapCommandActionBuilder {
