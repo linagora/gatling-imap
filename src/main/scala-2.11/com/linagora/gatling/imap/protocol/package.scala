@@ -14,6 +14,8 @@ package object protocol {
 
     case class Select(userId: String, mailbox: String) extends Command
 
+    case class List(userId: String, reference: String, mailbox: String) extends Command
+
     case class Disconnect(userId: String) extends Command
 
   }
@@ -30,6 +32,8 @@ package object protocol {
     case class LoggedIn(responses: ImapResponses) extends Response
 
     case class Selected(responses: ImapResponses) extends Response
+
+    case class Listed(responses: ImapResponses) extends Response
 
     case class Disconnected(cause: Throwable)
 
