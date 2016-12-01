@@ -4,11 +4,12 @@ The goal of this project is to be able to support IMAP protocol into Gatling.
 
 == Supported commands
 
-For now only LOGIN, LIST and SELECT commands are supported.
+For now only LOGIN, LIST, SELECT and FETCH commands are supported.
 
 == Supported checks
 
  - ok: last response is OK
+ - no: last response is NO
  - bad: last response is BAD
  - hasFolder(String): one LIST response contains the folder
  - hasRecent(Int): one response contains xxx RECENT
@@ -27,6 +28,7 @@ You can find a full example into ImapAuthenticationScenario.  Here is the intere
     .exec(imap("login").login("${username}","${password}").check(ok))
     .exec(imap("list").list("", "*").check(ok, hasFolder("INBOX")))
     .exec(imap("select").select("INBOX").check(ok, hasRecent(0)))
+    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(no))
 
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 ----
@@ -37,9 +39,9 @@ You need to install a particular version of imapnio library
 
 
 ----
-$ git clone https://github.com/jeantil/imapnio.git
+$ git clone https://github.com/rouazana/imapnio.git
 $ cd imapnio
-$ git checkout origin/ugrade_netty
+$ git checkout origin/linagora2
 $ mvn install
 ----
 

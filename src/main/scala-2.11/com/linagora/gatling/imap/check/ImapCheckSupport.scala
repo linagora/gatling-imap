@@ -6,6 +6,8 @@ import io.gatling.core.check.CheckResult
 trait ImapCheckSupport {
   def ok = ImapSimpleCheck(_.isOk)
 
+  def no = ImapSimpleCheck(_.isNo)
+
   def bad = ImapSimpleCheck(_.isBad, _ => "Failed to find expected bad status")
 
   def hasRecent(expected: Int) = ImapValidationCheck { responses =>

@@ -1,11 +1,14 @@
 package com.linagora.gatling.imap.scenario
 
 import com.linagora.gatling.imap.PreDef._
+import com.linagora.gatling.imap.protocol.command.FetchAttributes.AttributeList
+import com.linagora.gatling.imap.protocol.command.FetchRange.{From, One, Range, To}
 import io.gatling.app.Gatling
 import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingPropertiesBuilder
 import io.gatling.core.scenario.Simulation
 
+import scala.collection.immutable.Seq
 import scala.concurrent.duration._
 
 class ImapAuthenticationScenario extends Simulation {
@@ -17,6 +20,7 @@ class ImapAuthenticationScenario extends Simulation {
     .exec(imap("login").login("${username}", "${password}").check(ok))
     .exec(imap("list").list("", "*").check(ok, hasFolder("INBOX")))
     .exec(imap("select").select("INBOX").check(ok, hasRecent(0)))
+    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(no))
 
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 }
