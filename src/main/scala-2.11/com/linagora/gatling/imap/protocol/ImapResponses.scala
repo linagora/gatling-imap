@@ -16,6 +16,8 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
 
   def isOk = responses.lastOption.exists(_.isOK)
 
+  def isNo = responses.lastOption.exists(_.isNO)
+
   def countRecent: Option[Int] = {
     responses.map(_.toString).find(_.matches(Recent.regex))
       .map {

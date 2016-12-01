@@ -1,0 +1,96 @@
+package com.linagora.gatling.imap.protocol.command
+
+import java.util
+
+import akka.actor.{ActorRef, Props}
+import com.lafaspot.imapnio.client.IMAPSession
+import com.lafaspot.imapnio.listener.IMAPCommandListener
+import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag}
+import com.sun.mail.imap.protocol.IMAPResponse
+import io.gatling.core.akka.BaseActor
+
+import scala.collection.immutable.Seq
+
+abstract class FetchRange {
+  def asString: String
+}
+
+object FetchRange {
+  case class From(from: Long) extends FetchRange {
+    override def asString = s"$from:*"
+  }
+
+  case class To(to: Long) extends FetchRange {
+    override def asString = s"*:$to"
+  }
+
+  case class One(value: Long) extends FetchRange {
+    override def asString = value.toString
+  }
+
+  case class Range(from: Long, to: Long) extends FetchRange {
+    override def asString = s"$from:$to"
+  }
+}
+
+abstract class FetchAttributes {
+  def asString: String
+}
+
+object FetchAttributes {
+  case class ALL() extends FetchAttributes {
+    override def asString = "ALL"
+  }
+
+  case class FULL() extends FetchAttributes {
+    override def asString = "FULL"
+  }
+
+  case class FAST() extends FetchAttributes {
+    override def asString = "FAST"
+  }
+
+  case class AttributeList(fetchAttributes: String*) extends FetchAttributes {
+    override def asString = fetchAttributes.mkString("(", " ", ")")
+  }
+}
+
+object FetchHandler {
+  def props(session: IMAPSession, tag: Tag) = Props(new FetchHandler(session, tag))
+}
+
+class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
+
+  override def receive: Receive = {
+    case Command.Fetch(userId, sequence, attributes) =>
+      val listener = new FetchListener(userId)
+      val sequenceAsString = sequence.map(_.asString).mkString(",")
+      val attributesAsString = attributes.asString
+      session.executeTaggedRawTextCommand(tag.string, s"FETCH $sequenceAsString $attributesAsString", listener)
+      context.become(waitCallback(sender()))
+  }
+
+  def waitCallback(sender: ActorRef): Receive = {
+    case msg@Response.Fetched(response) =>
+      sender ! msg
+      context.stop(self)
+  }
+
+
+  class FetchListener(userId: String) extends IMAPCommandListener {
+
+    import collection.JavaConverters._
+
+    override def onMessage(session: IMAPSession, response: IMAPResponse): Unit = {
+      logger.trace(s"Untagged message for $userId : ${response.toString}")
+    }
+
+    override def onResponse(session: IMAPSession, tag: String, responses: util.List[IMAPResponse]): Unit = {
+      val response = ImapResponses(responses.asScala.to[Seq])
+      logger.trace(s"On response for $userId :\n ${response.mkString("\n")}\n ${sender.path}")
+      self ! Response.Fetched(response)
+    }
+  }
+
+}
+
