@@ -9,7 +9,7 @@ import com.lafaspot.imapnio.client.{IMAPClient, IMAPSession => ClientSession}
 import com.lafaspot.imapnio.listener.IMAPConnectionListener
 import com.lafaspot.logfast.logging.internal.LogPage
 import com.lafaspot.logfast.logging.{LogManager, Logger}
-import com.linagora.gatling.imap.protocol.command.{FetchHandler, ListHandler, LoginHandler, SelectHandler}
+import com.linagora.gatling.imap.protocol.command._
 import com.sun.mail.imap.protocol.IMAPResponse
 import io.gatling.core.akka.BaseActor
 
@@ -118,6 +118,9 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
       handler forward cmd
     case cmd@Command.Fetch(_, _, _) =>
       val handler = context.actorOf(FetchHandler.props(session, nextTag()), "fetch")
+      handler forward cmd
+    case cmd@Command.Append(_, _, _, _, _) =>
+      val handler = context.actorOf(AppendHandler.props(session, nextTag()), "append")
       handler forward cmd
     case msg@Response.Disconnected(cause) =>
       context.become(disconnected)
