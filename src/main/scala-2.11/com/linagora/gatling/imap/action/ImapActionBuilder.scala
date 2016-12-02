@@ -1,5 +1,7 @@
 package com.linagora.gatling.imap.action
 
+import java.util.Calendar
+
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
 import com.linagora.gatling.imap.protocol.command.{FetchAttributes, FetchRange}
@@ -27,6 +29,10 @@ class ImapActionBuilder(requestName: String) {
 
   def fetch(sequence: Expression[Seq[FetchRange]], attributes: Expression[FetchAttributes]): ImapFetchActionBuilder = {
     ImapFetchActionBuilder(requestName, sequence, attributes, Seq.empty)
+  }
+
+  def append(mailbox: Expression[String], flags: Expression[Option[Seq[String]]], date: Expression[Option[Calendar]], content: Expression[String]): ImapAppendActionBuilder = {
+    ImapAppendActionBuilder(requestName, mailbox, flags, date, content, Seq.empty)
   }
 
   def connect(): ImapConnectActionBuilder = {
@@ -84,6 +90,15 @@ case class ImapFetchActionBuilder(requestName: String, sequence: Expression[Seq[
     FetchAction.props(ctx, requestName, checks, sequence, attributes)
 
   override val actionName: String = "fetch-action"
+}
+
+case class ImapAppendActionBuilder(requestName: String, mailbox: Expression[String], flags: Expression[Option[Seq[String]]], date: Expression[Option[Calendar]], content: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapAppendActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    AppendAction.props(ctx, requestName, checks, mailbox, flags, date, content)
+
+  override val actionName: String = "append-action"
 }
 
 case class ImapConnectActionBuilder(requestName: String) extends ImapCommandActionBuilder {
