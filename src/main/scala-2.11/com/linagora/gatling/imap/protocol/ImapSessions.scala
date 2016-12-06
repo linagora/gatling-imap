@@ -12,6 +12,7 @@ import com.lafaspot.logfast.logging.{LogManager, Logger}
 import com.linagora.gatling.imap.protocol.command._
 import com.sun.mail.imap.protocol.IMAPResponse
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.util.NameGen
 
 import scala.util.control.NoStackTrace
 
@@ -48,7 +49,7 @@ private object ImapSession {
 
 }
 
-private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends BaseActor with Stash {
+private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
   val connectionListener = new IMAPConnectionListener {
     override def onConnect(session: ClientSession): Unit = {
       logger.trace("Callback onConnect called")
@@ -108,19 +109,19 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
 
   def connected: Receive = {
     case cmd@Command.Login(_, _, _) =>
-      val handler = context.actorOf(LoginHandler.props(session, nextTag()), "login")
+      val handler = context.actorOf(LoginHandler.props(session, nextTag()), genName("login"))
       handler forward cmd
     case cmd@Command.Select(_, _) =>
-      val handler = context.actorOf(SelectHandler.props(session, nextTag()), "select")
+      val handler = context.actorOf(SelectHandler.props(session, nextTag()), genName("select"))
       handler forward cmd
     case cmd@Command.List(_, _, _) =>
-      val handler = context.actorOf(ListHandler.props(session, nextTag()), "list")
+      val handler = context.actorOf(ListHandler.props(session, nextTag()), genName("list"))
       handler forward cmd
     case cmd@Command.Fetch(_, _, _) =>
-      val handler = context.actorOf(FetchHandler.props(session, nextTag()), "fetch")
+      val handler = context.actorOf(FetchHandler.props(session, nextTag()), genName("fetch"))
       handler forward cmd
     case cmd@Command.Append(_, _, _, _, _) =>
-      val handler = context.actorOf(AppendHandler.props(session, nextTag()), "append")
+      val handler = context.actorOf(AppendHandler.props(session, nextTag()), genName("append"))
       handler forward cmd
     case msg@Response.Disconnected(cause) =>
       context.become(disconnected)

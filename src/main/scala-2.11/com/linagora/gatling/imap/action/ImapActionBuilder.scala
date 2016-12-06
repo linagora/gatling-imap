@@ -50,7 +50,7 @@ abstract class ImapCommandActionBuilder extends ActionBuilder with NameGen {
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val components: ImapComponents = ctx.protocolComponentsRegistry.components(ImapProtocol.ImapProtocolKey)
     val imapCtx = ImapActionContext(components.sessions, ctx.coreComponents.statsEngine, next)
-    val actionActor = ctx.system.actorOf(props(imapCtx), actionName)
+    val actionActor = ctx.system.actorOf(props(imapCtx), genName(actionName))
     new ExitableActorDelegatingAction(genName(requestName), ctx.coreComponents.statsEngine, next, actionActor)
   }
 
