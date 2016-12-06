@@ -1,5 +1,6 @@
 package com.linagora.gatling.imap.check
 
+import com.linagora.gatling.imap.protocol.Uid
 import io.gatling.commons.validation.Failure
 import io.gatling.core.check.CheckResult
 
@@ -27,7 +28,7 @@ trait ImapCheckSupport {
       _.folderList.contains(expected),
       resp => s"""Unable to find folder '$expected' in ${resp.folderList.mkString(", ")}""")
 
-  def hasUid(expected: Int) =
+  def hasUid(expected: Uid) =
     ImapSimpleCheck(
       _.uidList.contains(expected),
       resp => s"""Unable to find UID '$expected' in ${resp.uidList.mkString(", ")}""")
