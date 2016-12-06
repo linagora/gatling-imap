@@ -28,7 +28,7 @@ class ImapAuthenticationScenario extends Simulation {
         |Subject: test subject
         |
         |Test content""".stripMargin).check(ok))
-    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(ok))
+    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(ok, hasUid(1), contains("TEXT")))
 
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 }

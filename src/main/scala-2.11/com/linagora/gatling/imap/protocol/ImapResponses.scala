@@ -32,10 +32,21 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
         case List(null, quotedName) => quotedName
       }
   }
+
+  def uidList: Seq[Int] = {
+    responses.map(_.toString).filter(_.matches(Uid.regex))
+      .map {
+        case Uid(uid) => uid.toInt
+      }
+  }
+
+  def contains(content: String): Boolean =
+    responses.map(_.toString).exists(_.contains(content))
 }
 
 object ImapResponses {
   val empty = ImapResponses(Seq.empty)
   private val Recent = """^\* (\d+) RECENT$""".r
   private val List = """^^\* LIST .* (?:([^ "]+)|"(.*)")$""".r
+  private val Uid = """^\* .*UID (\d+).*$""".r
 }
