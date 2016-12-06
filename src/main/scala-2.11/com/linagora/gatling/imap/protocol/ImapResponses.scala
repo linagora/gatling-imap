@@ -33,10 +33,10 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
       }
   }
 
-  def uidList: Seq[Int] = {
-    responses.map(_.toString).filter(_.matches(Uid.regex))
+  def uidList: Seq[Uid] = {
+    responses.map(_.toString).filter(_.matches(UidRegex.regex))
       .map {
-        case Uid(uid) => uid.toInt
+        case UidRegex(uid) => Uid(uid.toInt)
       }
   }
 
@@ -48,5 +48,5 @@ object ImapResponses {
   val empty = ImapResponses(Seq.empty)
   private val Recent = """^\* (\d+) RECENT$""".r
   private val List = """^^\* LIST .* (?:([^ "]+)|"(.*)")$""".r
-  private val Uid = """^\* .*UID (\d+).*$""".r
+  private val UidRegex = """^\* .*UID (\d+).*$""".r
 }

@@ -3,6 +3,7 @@ package com.linagora.gatling.imap.scenario
 import java.util.Calendar
 
 import com.linagora.gatling.imap.PreDef._
+import com.linagora.gatling.imap.protocol.Uid
 import com.linagora.gatling.imap.protocol.command.FetchAttributes.AttributeList
 import com.linagora.gatling.imap.protocol.command.FetchRange.{From, One, Range, To}
 import io.gatling.app.Gatling
@@ -28,7 +29,7 @@ class ImapAuthenticationScenario extends Simulation {
         |Subject: test subject
         |
         |Test content""".stripMargin).check(ok))
-    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(ok, hasUid(1), contains("TEXT")))
+    .exec(imap("fetch").fetch(Seq(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(ok, hasUid(Uid(1)), contains("TEXT")))
 
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 }
