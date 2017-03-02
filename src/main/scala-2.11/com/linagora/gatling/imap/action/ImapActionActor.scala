@@ -25,5 +25,5 @@ trait ImapActionActor {
   def checks: Seq[Check[ImapResponses]] = Seq.empty
 
   protected def handleResponse(session: Session, start: Long): ActorRef =
-    context.actorOf(ImapResponseHandler.props(imapContext, requestName, session, start, checks), s"user-${session.userId}")
+    context.actorOf(ImapResponseHandler.props(imapContext, requestName, session, start, checks))
 }
