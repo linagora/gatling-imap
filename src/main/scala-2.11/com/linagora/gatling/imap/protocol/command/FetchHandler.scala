@@ -31,6 +31,10 @@ object FetchRange {
   case class Range(from: Long, to: Long) extends FetchRange {
     override def asString = s"$from:$to"
   }
+
+  case class Last() extends FetchRange {
+    override def asString = "*:*"
+  }
 }
 
 abstract class FetchAttributes {
