@@ -22,7 +22,7 @@ class AppendHandler(session: IMAPSession, tag: Tag) extends BaseActor {
       if (! date.isEmpty) throw new NotImplementedError("Date parameter for APPEND is still not implemented")
       val listener = new AppendListener(userId, content)
       val flagsAsString = flags.map(_.mkString("(", " ", ")")).getOrElse("()")
-      val length = content.length + content.lines.length
+      val length = content.length + content.lines.length - 1
       session.executeAppendCommand(tag.string, mailbox, flagsAsString, length.toString, listener)
       context.become(waitCallback(sender()))
   }
