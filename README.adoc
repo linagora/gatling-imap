@@ -43,18 +43,6 @@ You can find a full example into ImapAuthenticationScenario.  Here is the intere
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 ----
 
-== Requirements
-
-You need to install a particular version of imapnio library
-
-
-----
-$ git clone https://github.com/rouazana/imapnio.git
-$ cd imapnio
-$ git checkout origin/linagora2
-$ mvn install
-----
-
 == Tests
 
 === Hint: quick cyrus installation
