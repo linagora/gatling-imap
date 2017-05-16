@@ -120,6 +120,12 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
     case cmd@Command.Fetch(_, _, _) =>
       val handler = context.actorOf(FetchHandler.props(session, nextTag()), genName("fetch"))
       handler forward cmd
+    case cmd@Command.Store(_, _, _) =>
+      val handler = context.actorOf(StoreHandler.props(session, nextTag()), genName("store"))
+      handler forward cmd
+    case cmd@Command.Expunge(_) =>
+      val handler = context.actorOf(ExpungeHandler.props(session, nextTag()), genName("expunge"))
+      handler forward cmd
     case cmd@Command.Append(_, _, _, _, _) =>
       val handler = context.actorOf(AppendHandler.props(session, nextTag()), genName("append"))
       handler forward cmd
