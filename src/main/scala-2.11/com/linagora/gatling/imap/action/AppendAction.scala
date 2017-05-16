@@ -5,7 +5,7 @@ import java.util.Calendar
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
 import com.linagora.gatling.imap.protocol.Command
-import com.linagora.gatling.imap.protocol.command.{FetchAttributes, FetchRange}
+import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRange}
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.ValidatedActionActor

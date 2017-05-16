@@ -5,7 +5,7 @@ import java.util.Calendar
 import com.linagora.gatling.imap.PreDef._
 import com.linagora.gatling.imap.protocol.Uid
 import com.linagora.gatling.imap.protocol.command.FetchAttributes.AttributeList
-import com.linagora.gatling.imap.protocol.command.FetchRange._
+import com.linagora.gatling.imap.protocol.command.MessageRange._
 import io.gatling.app.Gatling
 import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingPropertiesBuilder

@@ -11,53 +11,24 @@ import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
 
-
-
-
-
-abstract class FetchAttributes {
-  def asString: String
+object ExpungeHandler {
+  def props(session: IMAPSession, tag: Tag) = Props(new ExpungeHandler(session, tag))
 }
 
-object FetchAttributes {
-  case class ALL() extends FetchAttributes {
-    override def asString = "ALL"
-  }
-
-  case class FULL() extends FetchAttributes {
-    override def asString = "FULL"
-  }
-
-  case class FAST() extends FetchAttributes {
-    override def asString = "FAST"
-  }
-
-  case class AttributeList(fetchAttributes: String*) extends FetchAttributes {
-    override def asString = fetchAttributes.mkString("(", " ", ")")
-  }
-}
-
-object FetchHandler {
-  def props(session: IMAPSession, tag: Tag) = Props(new FetchHandler(session, tag))
-}
-
-class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
+class ExpungeHandler(session: IMAPSession, tag: Tag) extends BaseActor {
 
   override def receive: Receive = {
-    case Command.Fetch(userId, sequence, attributes) =>
+    case Command.Expunge(userId) =>
       val listener = new FetchListener(userId)
-      val sequenceAsString = sequence.map(_.asString).mkString(",")
-      val attributesAsString = attributes.asString
-      session.executeTaggedRawTextCommand(tag.string, s"FETCH $sequenceAsString $attributesAsString", listener)
+      session.executeTaggedRawTextCommand(tag.string, "EXPUNGE", listener)
       context.become(waitCallback(sender()))
   }
 
   def waitCallback(sender: ActorRef): Receive = {
-    case msg@Response.Fetched(response) =>
+    case msg@Response.Expunged(_) =>
       sender ! msg
       context.stop(self)
   }
-
 
   class FetchListener(userId: String) extends IMAPCommandListener {
 
@@ -70,7 +41,7 @@ class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
     override def onResponse(session: IMAPSession, tag: String, responses: util.List[IMAPResponse]): Unit = {
       val response = ImapResponses(responses.asScala.to[Seq])
       logger.trace(s"On response for $userId :\n ${response.mkString("\n")}\n ${sender.path}")
-      self ! Response.Fetched(response)
+      self ! Response.Expunged(response)
     }
   }
 

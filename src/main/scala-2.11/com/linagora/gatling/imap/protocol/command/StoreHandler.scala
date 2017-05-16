@@ -11,55 +11,42 @@ import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
 
-
-
-
-
-abstract class FetchAttributes {
-  def asString: String
+abstract class StoreFlags(prefix: String, silent: Boolean, flags: String*) {
+  def asString: String = prefix + (if (silent) ".SILENT" else "") + " " + flags.mkString("(", " ", ")")
 }
 
-object FetchAttributes {
-  case class ALL() extends FetchAttributes {
-    override def asString = "ALL"
-  }
+object StoreFlags {
+  case class FlagReplace(silent: Boolean, flags: String*) extends StoreFlags("FLAGS", silent, flags:_*)
 
-  case class FULL() extends FetchAttributes {
-    override def asString = "FULL"
-  }
+  case class FlagAdd(silent: Boolean, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
 
-  case class FAST() extends FetchAttributes {
-    override def asString = "FAST"
-  }
+  case class FlagRemove(silent: Boolean, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
 
-  case class AttributeList(fetchAttributes: String*) extends FetchAttributes {
-    override def asString = fetchAttributes.mkString("(", " ", ")")
-  }
 }
 
-object FetchHandler {
-  def props(session: IMAPSession, tag: Tag) = Props(new FetchHandler(session, tag))
+object StoreHandler {
+  def props(session: IMAPSession, tag: Tag) = Props(new StoreHandler(session, tag))
 }
 
-class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
+class StoreHandler(session: IMAPSession, tag: Tag) extends BaseActor {
 
   override def receive: Receive = {
-    case Command.Fetch(userId, sequence, attributes) =>
-      val listener = new FetchListener(userId)
+    case Command.Store(userId, sequence, flags) =>
+      val listener = new StoreListener(userId)
       val sequenceAsString = sequence.map(_.asString).mkString(",")
-      val attributesAsString = attributes.asString
-      session.executeTaggedRawTextCommand(tag.string, s"FETCH $sequenceAsString $attributesAsString", listener)
+      val attributesAsString = flags.asString
+      session.executeTaggedRawTextCommand(tag.string, s"STORE $sequenceAsString $attributesAsString", listener)
       context.become(waitCallback(sender()))
   }
 
   def waitCallback(sender: ActorRef): Receive = {
-    case msg@Response.Fetched(response) =>
+    case msg@Response.Stored(response) =>
       sender ! msg
       context.stop(self)
   }
 
 
-  class FetchListener(userId: String) extends IMAPCommandListener {
+  class StoreListener(userId: String) extends IMAPCommandListener {
 
     import collection.JavaConverters._
 
@@ -70,9 +57,8 @@ class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
     override def onResponse(session: IMAPSession, tag: String, responses: util.List[IMAPResponse]): Unit = {
       val response = ImapResponses(responses.asScala.to[Seq])
       logger.trace(s"On response for $userId :\n ${response.mkString("\n")}\n ${sender.path}")
-      self ! Response.Fetched(response)
+      self ! Response.Stored(response)
     }
   }
 
 }
-
