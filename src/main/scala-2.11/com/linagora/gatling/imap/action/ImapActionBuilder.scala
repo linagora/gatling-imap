@@ -4,7 +4,7 @@ import java.util.Calendar
 
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.command.{FetchAttributes, FetchRange}
+import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges, StoreFlags}
 import com.linagora.gatling.imap.protocol.{ImapComponents, ImapProtocol}
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.{Action, ExitableActorDelegatingAction}
@@ -27,8 +27,16 @@ class ImapActionBuilder(requestName: String) {
     ImapListActionBuilder(requestName, reference, name, Seq.empty)
   }
 
-  def fetch(sequence: Expression[Seq[FetchRange]], attributes: Expression[FetchAttributes]): ImapFetchActionBuilder = {
+  def fetch(sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes]): ImapFetchActionBuilder = {
     ImapFetchActionBuilder(requestName, sequence, attributes, Seq.empty)
+  }
+
+  def store(sequence: Expression[MessageRanges], flags: Expression[StoreFlags]): ImapStoreActionBuilder = {
+    ImapStoreActionBuilder(requestName, sequence, flags, Seq.empty)
+  }
+
+  def expunge(): ImapExpungeActionBuilder = {
+    ImapExpungeActionBuilder(requestName, Seq.empty)
   }
 
   def append(mailbox: Expression[String], flags: Expression[Option[Seq[String]]], date: Expression[Option[Calendar]], content: Expression[String]): ImapAppendActionBuilder = {
@@ -83,13 +91,31 @@ case class ImapListActionBuilder(requestName: String, reference: Expression[Stri
   override val actionName: String = "list-action"
 }
 
-case class ImapFetchActionBuilder(requestName: String, sequence: Expression[Seq[FetchRange]], attributes: Expression[FetchAttributes], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+case class ImapFetchActionBuilder(requestName: String, sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
   def check(checks: ImapCheck*): ImapFetchActionBuilder = copy(checks = this.checks ++ checks)
 
   override def props(ctx: ImapActionContext): Props =
     FetchAction.props(ctx, requestName, checks, sequence, attributes)
 
   override val actionName: String = "fetch-action"
+}
+
+case class ImapStoreActionBuilder(requestName: String, sequence: Expression[MessageRanges], flags: Expression[StoreFlags], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapStoreActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    StoreAction.props(ctx, requestName, checks, sequence, flags)
+
+  override val actionName: String = "store-action"
+}
+
+case class ImapExpungeActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapExpungeActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    ExpungeAction.props(ctx, requestName, checks)
+
+  override val actionName: String = "expunge-action"
 }
 
 case class ImapAppendActionBuilder(requestName: String, mailbox: Expression[String], flags: Expression[Option[Seq[String]]], date: Expression[Option[Calendar]], content: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

@@ -11,31 +11,9 @@ import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
 
-abstract class FetchRange {
-  def asString: String
-}
 
-object FetchRange {
-  case class From(from: Long) extends FetchRange {
-    override def asString = s"$from:*"
-  }
 
-  case class To(to: Long) extends FetchRange {
-    override def asString = s"*:$to"
-  }
 
-  case class One(value: Long) extends FetchRange {
-    override def asString = value.toString
-  }
-
-  case class Range(from: Long, to: Long) extends FetchRange {
-    override def asString = s"$from:$to"
-  }
-
-  case class Last() extends FetchRange {
-    override def asString = "*:*"
-  }
-}
 
 abstract class FetchAttributes {
   def asString: String
@@ -68,7 +46,7 @@ class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   override def receive: Receive = {
     case Command.Fetch(userId, sequence, attributes) =>
       val listener = new FetchListener(userId)
-      val sequenceAsString = sequence.map(_.asString).mkString(",")
+      val sequenceAsString = sequence.asString
       val attributesAsString = attributes.asString
       session.executeTaggedRawTextCommand(tag.string, s"FETCH $sequenceAsString $attributesAsString", listener)
       context.become(waitCallback(sender()))
