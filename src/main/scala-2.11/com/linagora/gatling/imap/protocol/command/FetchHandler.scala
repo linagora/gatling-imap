@@ -46,9 +46,8 @@ class FetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   override def receive: Receive = {
     case Command.Fetch(userId, sequence, attributes) =>
       val listener = new FetchListener(userId)
-      val sequenceAsString = sequence.asString
-      val attributesAsString = attributes.asString
-      session.executeTaggedRawTextCommand(tag.string, s"FETCH $sequenceAsString $attributesAsString", listener)
+
+      session.executeTaggedRawTextCommand(tag.string, s"FETCH ${sequence.asString} ${attributes.asString}", listener)
       context.become(waitCallback(sender()))
   }
 
