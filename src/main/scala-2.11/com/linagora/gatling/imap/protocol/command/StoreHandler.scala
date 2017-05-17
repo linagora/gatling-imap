@@ -43,10 +43,8 @@ class StoreHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   override def receive: Receive = {
     case Command.Store(userId, sequence, flags) =>
       val listener = new StoreListener(userId)
-      val sequenceAsString = sequence.asString
-      val flagsAsString = flags.asString
 
-      session.executeTaggedRawTextCommand(tag.string, s"STORE $sequenceAsString $flagsAsString", listener)
+      session.executeTaggedRawTextCommand(tag.string, s"STORE ${sequence.asString} ${flags.asString}", listener)
       context.become(waitCallback(sender()))
   }
 
