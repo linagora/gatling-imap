@@ -11,8 +11,11 @@ import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
 
-abstract class StoreFlags(prefix: String, silent: Boolean, flags: String*) {
-  def asString: String = prefix + (if (silent) ".SILENT" else "") + " " + flags.mkString("(", " ", ")")
+sealed abstract class StoreFlags(prefix: String, silent: Boolean, flags: String*) {
+  val silentAsString: String = if (silent) ".SILENT" else ""
+  val flagsAsString: String  = flags.mkString("(", " ", ")")
+
+  def asString: String = s"${prefix}${silentAsString} ${flagsAsString}"
 }
 
 object StoreFlags {
@@ -20,8 +23,7 @@ object StoreFlags {
 
   case class FlagAdd(silent: Boolean, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
 
-  case class FlagRemove(silent: Boolean, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
-
+  case class FlagRemove(silent: Boolean, flags: String*) extends StoreFlags("-FLAGS", silent, flags:_*)
 }
 
 object StoreHandler {
@@ -33,9 +35,10 @@ class StoreHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   override def receive: Receive = {
     case Command.Store(userId, sequence, flags) =>
       val listener = new StoreListener(userId)
-      val sequenceAsString = sequence.map(_.asString).mkString(",")
-      val attributesAsString = flags.asString
-      session.executeTaggedRawTextCommand(tag.string, s"STORE $sequenceAsString $attributesAsString", listener)
+      val sequenceAsString = sequence.asString
+      val flagsAsString = flags.asString
+
+      session.executeTaggedRawTextCommand(tag.string, s"STORE $sequenceAsString $flagsAsString", listener)
       context.become(waitCallback(sender()))
   }
 

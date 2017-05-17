@@ -4,7 +4,7 @@ import java.util.Calendar
 
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRange, StoreFlags}
+import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges, StoreFlags}
 import com.linagora.gatling.imap.protocol.{ImapComponents, ImapProtocol}
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.{Action, ExitableActorDelegatingAction}
@@ -27,11 +27,11 @@ class ImapActionBuilder(requestName: String) {
     ImapListActionBuilder(requestName, reference, name, Seq.empty)
   }
 
-  def fetch(sequence: Expression[Seq[MessageRange]], attributes: Expression[FetchAttributes]): ImapFetchActionBuilder = {
+  def fetch(sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes]): ImapFetchActionBuilder = {
     ImapFetchActionBuilder(requestName, sequence, attributes, Seq.empty)
   }
 
-  def store(sequence: Expression[Seq[MessageRange]], flags: Expression[StoreFlags]): ImapStoreActionBuilder = {
+  def store(sequence: Expression[MessageRanges], flags: Expression[StoreFlags]): ImapStoreActionBuilder = {
     ImapStoreActionBuilder(requestName, sequence, flags, Seq.empty)
   }
 
@@ -91,7 +91,7 @@ case class ImapListActionBuilder(requestName: String, reference: Expression[Stri
   override val actionName: String = "list-action"
 }
 
-case class ImapFetchActionBuilder(requestName: String, sequence: Expression[Seq[MessageRange]], attributes: Expression[FetchAttributes], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+case class ImapFetchActionBuilder(requestName: String, sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
   def check(checks: ImapCheck*): ImapFetchActionBuilder = copy(checks = this.checks ++ checks)
 
   override def props(ctx: ImapActionContext): Props =
@@ -100,7 +100,7 @@ case class ImapFetchActionBuilder(requestName: String, sequence: Expression[Seq[
   override val actionName: String = "fetch-action"
 }
 
-case class ImapStoreActionBuilder(requestName: String, sequence: Expression[Seq[MessageRange]], flags: Expression[StoreFlags], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+case class ImapStoreActionBuilder(requestName: String, sequence: Expression[MessageRanges], flags: Expression[StoreFlags], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
   def check(checks: ImapCheck*): ImapStoreActionBuilder = copy(checks = this.checks ++ checks)
 
   override def props(ctx: ImapActionContext): Props =

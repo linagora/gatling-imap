@@ -25,6 +25,6 @@ object MessageRange {
   }
 }
 
-abstract class MessageRange {
+sealed abstract class MessageRange {
   def asString: String
 }

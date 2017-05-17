@@ -19,7 +19,7 @@ class ExpungeHandler(session: IMAPSession, tag: Tag) extends BaseActor {
 
   override def receive: Receive = {
     case Command.Expunge(userId) =>
-      val listener = new FetchListener(userId)
+      val listener = new ExpungeListener(userId)
       session.executeTaggedRawTextCommand(tag.string, "EXPUNGE", listener)
       context.become(waitCallback(sender()))
   }
@@ -30,7 +30,7 @@ class ExpungeHandler(session: IMAPSession, tag: Tag) extends BaseActor {
       context.stop(self)
   }
 
-  class FetchListener(userId: String) extends IMAPCommandListener {
+  class ExpungeListener(userId: String) extends IMAPCommandListener {
 
     import collection.JavaConverters._
 

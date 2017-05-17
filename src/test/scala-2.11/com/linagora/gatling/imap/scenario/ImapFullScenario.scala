@@ -3,12 +3,10 @@ package com.linagora.gatling.imap.scenario
 import java.util.Calendar
 
 import com.linagora.gatling.imap.PreDef._
-import com.linagora.gatling.imap.protocol.Uid
 import com.linagora.gatling.imap.protocol.command.FetchAttributes.AttributeList
 import com.linagora.gatling.imap.protocol.command.MessageRange._
-import io.gatling.app.Gatling
+import com.linagora.gatling.imap.protocol.command.MessageRanges
 import io.gatling.core.Predef._
-import io.gatling.core.config.GatlingPropertiesBuilder
 import io.gatling.core.scenario.Simulation
 
 import scala.collection.immutable.Seq
@@ -29,7 +27,7 @@ class ImapFullScenario extends Simulation {
 
   val readLastEmail = exec(imap("list").list("", "*").check(ok, hasFolder("INBOX")))
                       .exec(imap("select").select("INBOX").check(ok))
-                      .exec(imap("fetch").fetch(Seq(Last()), AttributeList("BODY[HEADER]", "UID", "BODY[TEXT]")).check(ok))
+                      .exec(imap("fetch").fetch(MessageRanges(Last()), AttributeList("BODY[HEADER]", "UID", "BODY[TEXT]")).check(ok))
 
   val heavyUser = repeat(3)(receiveEmail)
                   .repeat(2)(readLastEmail)

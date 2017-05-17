@@ -2,7 +2,7 @@ package com.linagora.gatling.imap
 
 import java.util.Calendar
 
-import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRange, StoreFlags}
+import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges, StoreFlags}
 
 import scala.collection.immutable.Seq
 
@@ -22,7 +22,7 @@ package object protocol {
 
     case class List(userId: String, reference: String, mailbox: String) extends Command
 
-    case class Fetch(userId: String, sequence: Seq[MessageRange], attributes: FetchAttributes) extends Command
+    case class Fetch(userId: String, sequence: MessageRanges, attributes: FetchAttributes) extends Command
 
     case class Expunge(userId: String) extends Command
 
@@ -30,7 +30,7 @@ package object protocol {
 
     case class Disconnect(userId: String) extends Command
 
-    case class Store(userId: String, sequence: Seq[MessageRange], flags: StoreFlags) extends Command
+    case class Store(userId: String, sequence: MessageRanges, flags: StoreFlags) extends Command
 
   }
 
