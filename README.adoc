@@ -117,5 +117,13 @@ $ sbt gatling:test
 Or only the specified one:
 
 ----
-$ sbt gatling:testOnly com.linagora.gatling.imap.scenario.ImapAuthenticationScenario
+$ sbt "gatling:testOnly com.linagora.gatling.imap.scenario.ImapAuthenticationScenario"
 ----
+
+You can also pass parameter to scenario that accept it like that:
+
+----
+$ JAVA_OPTS="-DnumberOfMailInInbox=15 -DpercentageOfMailToExpunge=30 -DmaxDuration=20" sbt "gatling:testOnly com.linagora.gatling.imap.scenario.ImapExpungeScenario"
+----
+
+In the case of expunge scenario the maxDuration parameter is in minutes
