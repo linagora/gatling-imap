@@ -5,8 +5,7 @@ import java.util.Calendar
 import com.linagora.gatling.imap.PreDef._
 import com.linagora.gatling.imap.protocol.command.FetchAttributes.AttributeList
 import com.linagora.gatling.imap.protocol.command.MessageRange._
-import com.linagora.gatling.imap.protocol.command.MessageRanges
-import com.linagora.gatling.imap.protocol.command.StoreFlags
+import com.linagora.gatling.imap.protocol.command.{MessageRanges, Silent, StoreFlags}
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
 
@@ -39,7 +38,7 @@ class ImapSimpleScenario extends Simulation {
         .pause(200 milli)
         .exec(imap("fetch").fetch(MessageRanges(Last()), AttributeList("BODY[HEADER]", "UID", "BODY[TEXT]")).check(ok))
         .pause(200 milli)
-        .exec(imap("store").store(MessageRanges(Last()), StoreFlags.FlagAdd(false, "\\Deleted")).check(ok))
+        .exec(imap("store").store(MessageRanges(Last()), StoreFlags.FlagAdd(Silent.Disable(), "\\Deleted")).check(ok))
         .pause(200 milli)
         .exec(imap("expunge").expunge().check(ok))
         .pause(200 milli)

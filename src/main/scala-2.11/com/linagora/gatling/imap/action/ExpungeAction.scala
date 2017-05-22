@@ -1,5 +1,7 @@
 package com.linagora.gatling.imap.action
 
+import io.gatling.commons.validation._
+
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
 import com.linagora.gatling.imap.protocol.Command
@@ -22,6 +24,6 @@ class ExpungeAction(val imapContext: ImapActionContext, val requestName: String,
     val handler = handleResponse(session, nowMillis)
     sessions.tell(Command.Expunge(id.toString), handler)
 
-    StaticStringExpression("null")(session)
+    Success("ok")
   }
 }

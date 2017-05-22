@@ -11,19 +11,27 @@ import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
 
-sealed abstract class StoreFlags(prefix: String, silent: Boolean, flags: String*) {
-  val silentAsString: String = if (silent) ".SILENT" else ""
+sealed abstract class StoreFlags(prefix: String, silent: Silent, flags: String*) {
+  val silentAsString: String = if (silent.enable) ".SILENT" else ""
   val flagsAsString: String  = flags.mkString("(", " ", ")")
 
   def asString: String = s"${prefix}${silentAsString} ${flagsAsString}"
 }
 
+abstract class Silent(val enable: Boolean) { }
+
+object Silent {
+  case class Enable() extends Silent(true)
+
+  case class Disable() extends Silent(false)
+}
+
 object StoreFlags {
-  case class FlagReplace(silent: Boolean, flags: String*) extends StoreFlags("FLAGS", silent, flags:_*)
+  case class FlagReplace(silent: Silent, flags: String*) extends StoreFlags("FLAGS", silent, flags:_*)
 
-  case class FlagAdd(silent: Boolean, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
+  case class FlagAdd(silent: Silent, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
 
-  case class FlagRemove(silent: Boolean, flags: String*) extends StoreFlags("-FLAGS", silent, flags:_*)
+  case class FlagRemove(silent: Silent, flags: String*) extends StoreFlags("-FLAGS", silent, flags:_*)
 }
 
 object StoreHandler {
