@@ -1,8 +1,5 @@
 package com.linagora.gatling.imap.protocol.command
 
-/**
-  * Created by lduzan on 16/05/17.
-  */
 object MessageRange {
   case class From(from: Long) extends MessageRange {
     override def asString = s"$from:*"
