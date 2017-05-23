@@ -4,7 +4,7 @@ The goal of this project is to be able to support IMAP protocol into Gatling.
 
 == Supported commands
 
-For now only LOGIN, LIST, SELECT, APPEND and FETCH commands are supported.
+For now only LOGIN, LIST, SELECT, EXPUNGE, STORE, APPEND and FETCH commands are supported.
 
 == Supported checks
 
