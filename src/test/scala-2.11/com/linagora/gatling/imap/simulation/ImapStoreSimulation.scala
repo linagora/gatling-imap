@@ -13,7 +13,6 @@ class ImapStoreSimulation extends Simulation {
 
   val scn = scenario("ImapStore")
     .feed(userFeeder)
-    .pause(1 second)
     .exec(ImapStoreScenario.storeScenario)
 
   setUp(scn.inject(atOnceUsers(1))).protocols(imap.host("localhost"))
