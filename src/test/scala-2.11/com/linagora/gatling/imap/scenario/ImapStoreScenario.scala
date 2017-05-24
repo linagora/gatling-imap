@@ -9,6 +9,7 @@ import io.gatling.core.Predef._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
+import scala.util.Random
 
 object ImapStoreScenario {
   val numberOfMailInInbox = 5000
@@ -26,7 +27,7 @@ object ImapStoreScenario {
   val populateInbox = repeat(numberOfMailInInbox)(pause(appendGracePeriod).exec(populateMailbox))
 
   val rangeFlagsUpdates = imap("storeAll").store(MessageRanges(From(1L)), StoreFlags.FlagAdd(Silent.Enable(), "all${loopId}")).check(ok)
-  val singleFlagsUpdate = imap("storeOne").store(MessageRanges(One(1L)), StoreFlags.FlagAdd(Silent.Enable(), "one${loopId}")).check(ok)
+  val singleFlagsUpdate = imap("storeOne").store(session => MessageRanges(One(1L + Random.nextInt(numberOfMailInInbox))), StoreFlags.FlagAdd(Silent.Enable(), "one${loopId}")).check(ok)
 
   val storeScenario = exec(imap("Connect").connect()).exitHereIfFailed
     .exec(imap("login").login("${username}", "${password}").check(ok))
