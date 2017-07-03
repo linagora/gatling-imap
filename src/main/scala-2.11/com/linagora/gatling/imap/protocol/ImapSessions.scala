@@ -120,6 +120,9 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
     case cmd@Command.Fetch(_, _, _) =>
       val handler = context.actorOf(FetchHandler.props(session, nextTag()), genName("fetch"))
       handler forward cmd
+    case cmd@Command.UIDFetch(_, _, _) =>
+      val handler = context.actorOf(UIDFetchHandler.props(session, nextTag()), genName("uidFetch"))
+      handler forward cmd
     case cmd@Command.Store(_, _, _) =>
       val handler = context.actorOf(StoreHandler.props(session, nextTag()), genName("store"))
       handler forward cmd
