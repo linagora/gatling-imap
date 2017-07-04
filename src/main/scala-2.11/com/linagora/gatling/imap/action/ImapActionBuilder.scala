@@ -31,6 +31,10 @@ class ImapActionBuilder(requestName: String) {
     ImapFetchActionBuilder(requestName, sequence, attributes, Seq.empty)
   }
 
+  def uidFetch(sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes]): ImapUIDFetchActionBuilder = {
+    ImapUIDFetchActionBuilder(requestName, sequence, attributes, Seq.empty)
+  }
+
   def store(sequence: Expression[MessageRanges], flags: Expression[StoreFlags]): ImapStoreActionBuilder = {
     ImapStoreActionBuilder(requestName, sequence, flags, Seq.empty)
   }
@@ -98,6 +102,15 @@ case class ImapFetchActionBuilder(requestName: String, sequence: Expression[Mess
     FetchAction.props(ctx, requestName, checks, sequence, attributes)
 
   override val actionName: String = "fetch-action"
+}
+
+case class ImapUIDFetchActionBuilder(requestName: String, sequence: Expression[MessageRanges], attributes: Expression[FetchAttributes], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapUIDFetchActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    UIDFetchAction.props(ctx, requestName, checks, sequence, attributes)
+
+  override val actionName: String = "uid-fetch-action"
 }
 
 case class ImapStoreActionBuilder(requestName: String, sequence: Expression[MessageRanges], flags: Expression[StoreFlags], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

@@ -24,6 +24,8 @@ package object protocol {
 
     case class Fetch(userId: String, sequence: MessageRanges, attributes: FetchAttributes) extends Command
 
+    case class UIDFetch(userId: String, sequence: MessageRanges, attributes: FetchAttributes) extends Command
+
     case class Expunge(userId: String) extends Command
 
     case class Append(userId: String, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
@@ -31,7 +33,6 @@ package object protocol {
     case class Disconnect(userId: String) extends Command
 
     case class Store(userId: String, sequence: MessageRanges, flags: StoreFlags) extends Command
-
   }
 
   sealed trait Response {
