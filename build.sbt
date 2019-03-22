@@ -2,15 +2,19 @@ name := "gatling-imap"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.8"
+
+val gatlingVersion = "3.0.3"
+
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps")
 
 enablePlugins(GatlingPlugin)
 
-libraryDependencies += "io.gatling" % "gatling-test-framework" % "2.2.2" exclude("io.gatling", "gatling-http")
-libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.2" exclude("io.gatling", "gatling-http")
+libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion exclude("io.gatling", "gatling-http")
+libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-http")
 libraryDependencies += "com.github.krdev.imapnio" % "imapnio.core" % "1.0.22"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
-libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.4.11" % "test"
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "test"
 
 resolvers += Resolver.mavenLocal
 
