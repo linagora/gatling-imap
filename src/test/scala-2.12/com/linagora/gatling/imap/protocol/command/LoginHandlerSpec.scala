@@ -1,32 +1,47 @@
 package com.linagora.gatling.imap.protocol.command
 
-import java.net.URI
-import java.util
-import java.util.Properties
-
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
-import com.lafaspot.imapnio.client.{IMAPClient, IMAPSession}
-import com.lafaspot.imapnio.listener.IMAPConnectionListener
-import com.lafaspot.logfast.logging.internal.LogPage
-import com.lafaspot.logfast.logging.{LogManager, Logger}
 import com.linagora.gatling.imap.protocol.{Command, Response, Tag}
+import com.linagora.gatling.imap.{CyrusServer, Imap, ImapTestUtils}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.matchers.{MatchResult, Matcher}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import org.slf4j
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 
 
-class LoginHandlerSpec extends WordSpec with BeforeAndAfterAll with Matchers {
-  private val logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
+class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
+  val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
+
+  private val cyrusServer: CyrusServer.RunningCyrusServer = CyrusServer.start()
+    .createUser("user1", "password")
+
+  override def beforeEach(): Unit = {
+    implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
+    withConnectedSession (cyrusServer.mappedImapPort) { implicit session =>
+      Await.result(for {
+        _ <- Imap.login("cyrus", "cyrus")
+        _ <- Imap.rawCommand("CREATE user.user1")
+        _ <- Imap.disconnect()
+      } yield (), 1.minute)
+    }
+  }
+
+  override protected def afterEach(): Unit = {
+    system.terminate()
+    cyrusServer.stop()
+  }
+
   implicit lazy val system = ActorSystem("LoginHandlerSpec")
   "Login handler" should {
     "send the response back when logged in" in {
       val tag = Tag.initial
       val probe = TestProbe()
-      withConnectedSession { session =>
+      withConnectedSession (cyrusServer.mappedImapPort) { session =>
         val handler = system.actorOf(LoginHandler.props(session, tag))
         probe.send(handler, Command.Login("userId1", "user1", "password"))
       }
@@ -64,40 +79,4 @@ class LoginHandlerSpec extends WordSpec with BeforeAndAfterAll with Matchers {
     def hasTag(tag: String) = new HasTagMatcher(tag)
   }
 
-
-  val config = new Properties()
-  val uri = new URI("imap://localhost:143")
-  val imapClient = new IMAPClient(4)
-
-  def withConnectedSession(f: IMAPSession => Unit) = {
-    val connectionListener = new IMAPConnectionListener {
-      override def onConnect(session: IMAPSession): Unit = {
-        logger.trace("onConnect " + session)
-
-        f(session)
-      }
-
-      override def onMessage(session: IMAPSession, response: IMAPResponse): Unit = {
-        logger.trace("onMessage " + response)
-      }
-
-      override def onDisconnect(session: IMAPSession, cause: Throwable): Unit =
-        logger.trace("disconnected", cause)
-
-      override def onInactivityTimeout(session: IMAPSession): Unit = {
-        logger.trace("onInactivityTimeout " + session)
-      }
-
-      override def onResponse(session: IMAPSession, tag: String, responses: util.List[IMAPResponse]): Unit = {
-        logger.trace("onResponse " + responses)
-      }
-    }
-    val session = imapClient.createSession(uri, config, connectionListener, new LogManager(Logger.Level.DEBUG, LogPage.DEFAULT_SIZE))
-    println(uri)
-    session.connect()
-  }
-
-  override protected def afterAll(): Unit = {
-    system.terminate()
-  }
 }

@@ -15,6 +15,7 @@ libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % g
 libraryDependencies += "com.github.krdev.imapnio" % "imapnio.core" % "1.0.22"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "test"
+libraryDependencies += "org.testcontainers" % "testcontainers" % "1.11.0" % "test"
 
 resolvers += Resolver.mavenLocal
 
