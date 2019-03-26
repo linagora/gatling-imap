@@ -2,8 +2,9 @@ package com.linagora.gatling.imap.protocol.command
 
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
+import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{Command, Response, Tag}
-import com.linagora.gatling.imap.{CyrusServer, Imap, ImapTestUtils}
+import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
@@ -11,39 +12,30 @@ import org.slf4j
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 
 
 class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
-  private val cyrusServer: CyrusServer.RunningCyrusServer = CyrusServer.start()
-    .createUser("user1", "password")
+  private val server: RunningServer = CyrusServer.start()
 
   override def beforeEach(): Unit = {
-    implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
-    withConnectedSession (cyrusServer.mappedImapPort) { implicit session =>
-      Await.result(for {
-        _ <- Imap.login("cyrus", "cyrus")
-        _ <- Imap.rawCommand("CREATE user.user1")
-        _ <- Imap.disconnect()
-      } yield (), 1.minute)
-    }
+    server.addUser(bart)
   }
 
   override protected def afterEach(): Unit = {
     system.terminate()
-    cyrusServer.stop()
+    server.stop()
   }
 
-  implicit lazy val system = ActorSystem("LoginHandlerSpec")
+  implicit lazy val system: ActorSystem = ActorSystem("LoginHandlerSpec")
   "Login handler" should {
     "send the response back when logged in" in {
       val tag = Tag.initial
       val probe = TestProbe()
-      withConnectedSession (cyrusServer.mappedImapPort) { session =>
+      withConnectedSession (server.mappedImapPort()) { session =>
         val handler = system.actorOf(LoginHandler.props(session, tag))
-        probe.send(handler, Command.Login("userId1", "user1", "password"))
+        probe.send(handler, Command.Login("userId1", bart))
       }
       probe.expectMsgPF(1.minute) {
         case Response.LoggedIn(responses) => responses.isOk shouldBe true
@@ -54,7 +46,7 @@ class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEa
   object IMAPResponseMatchers {
 
     class HasTagMatcher(tag: String) extends Matcher[IMAPResponse] {
-      def apply(left: IMAPResponse) = {
+      def apply(left: IMAPResponse): MatchResult = {
         val name = left.getTag
         MatchResult(
           name == tag,
@@ -65,7 +57,7 @@ class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEa
     }
 
     class IsOkMatcher() extends Matcher[IMAPResponse] {
-      def apply(left: IMAPResponse) = {
+      def apply(left: IMAPResponse): MatchResult = {
         MatchResult(
           left.isOK,
           s"""ImapResponse isn't OK """,
@@ -74,7 +66,7 @@ class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEa
       }
     }
 
-    def isOk() = new IsOkMatcher()
+    def isOk = new IsOkMatcher()
 
     def hasTag(tag: String) = new HasTagMatcher(tag)
   }

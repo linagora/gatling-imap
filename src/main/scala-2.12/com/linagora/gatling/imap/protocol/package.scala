@@ -8,6 +8,8 @@ import scala.collection.immutable.Seq
 
 package object protocol {
 
+  case class User(login: String, password: String)
+
   trait Command {
     def userId: String
   }
@@ -17,6 +19,10 @@ package object protocol {
     case class Connect(userId: String) extends Command
 
     case class Login(userId: String, username: String, password: String) extends Command
+
+    object Login {
+      def apply(userId: String, user: User): Login = new Login(userId, user.login, user.password)
+    }
 
     case class Select(userId: String, mailbox: String) extends Command
 
