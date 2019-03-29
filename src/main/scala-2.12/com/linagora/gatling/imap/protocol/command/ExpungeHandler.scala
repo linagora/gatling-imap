@@ -5,7 +5,7 @@ import java.util
 import akka.actor.{ActorRef, Props}
 import com.lafaspot.imapnio.client.IMAPSession
 import com.lafaspot.imapnio.listener.IMAPCommandListener
-import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag}
+import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, UserId, Tag}
 import com.sun.mail.imap.protocol.IMAPResponse
 import io.gatling.core.akka.BaseActor
 
@@ -30,7 +30,7 @@ class ExpungeHandler(session: IMAPSession, tag: Tag) extends BaseActor {
       context.stop(self)
   }
 
-  class ExpungeListener(userId: String) extends IMAPCommandListener {
+  class ExpungeListener(userId: UserId) extends IMAPCommandListener {
 
     import collection.JavaConverters._
 

@@ -5,7 +5,7 @@ import java.util
 import akka.actor.{ActorRef, Props}
 import com.lafaspot.imapnio.client.IMAPSession
 import com.lafaspot.imapnio.listener.IMAPCommandListener
-import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag}
+import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag, UserId}
 import com.sun.mail.imap.protocol.IMAPResponse
 import io.gatling.core.akka.BaseActor
 
@@ -31,7 +31,7 @@ class ListHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   }
 
 
-  class ListListener(userId: String) extends IMAPCommandListener {
+  class ListListener(userId: UserId) extends IMAPCommandListener {
 
     import collection.JavaConverters._
 

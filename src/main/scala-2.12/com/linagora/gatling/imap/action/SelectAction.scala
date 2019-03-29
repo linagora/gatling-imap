@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.action
 
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.Command
+import com.linagora.gatling.imap.protocol.{Command, UserId}
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.ValidatedActionActor
 import io.gatling.core.session._
@@ -22,7 +22,7 @@ class SelectAction(val imapContext: ImapActionContext, val requestName: String, 
     } yield {
       val id: Long = session.userId
       val handler = handleResponse(session, imapContext.clock.nowMillis)
-      sessions.tell(Command.Select(id.toString, mailbox), handler)
+      sessions.tell(Command.Select(UserId(id), mailbox), handler)
     }
   }
 }

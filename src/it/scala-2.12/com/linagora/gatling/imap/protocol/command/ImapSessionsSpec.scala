@@ -5,7 +5,7 @@ import java.util.Properties
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
-import com.linagora.gatling.imap.protocol.{Command, ImapProtocol, ImapResponses, ImapSessions, Response}
+import com.linagora.gatling.imap.protocol.{Command, ImapProtocol, ImapResponses, ImapSessions, Response, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import org.slf4j.{Logger, LoggerFactory}
@@ -34,7 +34,7 @@ class ImapSessionsSpec extends WordSpec with Matchers with ImapTestUtils with Be
 
       val sessions = system.actorOf(ImapSessions.props(protocol))
       val probe = TestProbe()
-      val userId = "1"
+      val userId = UserId(1)
       probe.send(sessions, Command.Connect(userId))
       probe.expectMsg(10.second, Response.Connected(ImapResponses.empty))
       probe.send(sessions, Command.Login(userId, bart))

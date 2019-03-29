@@ -11,34 +11,34 @@ package object protocol {
   case class User(login: String, password: String)
 
   trait Command {
-    def userId: String
+    def userId: UserId
   }
 
   object Command {
 
-    case class Connect(userId: String) extends Command
+    case class Connect(userId: UserId) extends Command
 
-    case class Login(userId: String, username: String, password: String) extends Command
+    case class Login(userId: UserId, username: String, password: String) extends Command
 
     object Login {
-      def apply(userId: String, user: User): Login = new Login(userId, user.login, user.password)
+      def apply(userId: UserId, user: User): Login = new Login(userId, user.login, user.password)
     }
 
-    case class Select(userId: String, mailbox: String) extends Command
+    case class Select(userId: UserId, mailbox: String) extends Command
 
-    case class List(userId: String, reference: String, mailbox: String) extends Command
+    case class List(userId: UserId, reference: String, mailbox: String) extends Command
 
-    case class Fetch(userId: String, sequence: MessageRanges, attributes: FetchAttributes) extends Command
+    case class Fetch(userId: UserId, sequence: MessageRanges, attributes: FetchAttributes) extends Command
 
-    case class UIDFetch(userId: String, sequence: MessageRanges, attributes: FetchAttributes) extends Command
+    case class UIDFetch(userId: UserId, sequence: MessageRanges, attributes: FetchAttributes) extends Command
 
-    case class Expunge(userId: String) extends Command
+    case class Expunge(userId: UserId) extends Command
 
-    case class Append(userId: String, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
+    case class Append(userId: UserId, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
 
-    case class Disconnect(userId: String) extends Command
+    case class Disconnect(userId: UserId) extends Command
 
-    case class Store(userId: String, sequence: MessageRanges, flags: StoreFlags) extends Command
+    case class Store(userId: UserId, sequence: MessageRanges, flags: StoreFlags) extends Command
   }
 
   sealed trait Response {

@@ -3,7 +3,7 @@ package com.linagora.gatling.imap.protocol.command
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
-import com.linagora.gatling.imap.protocol.{Command, Response, Tag}
+import com.linagora.gatling.imap.protocol.{Command, Response, Tag, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.matchers.{MatchResult, Matcher}
@@ -35,7 +35,7 @@ class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEa
       val probe = TestProbe()
       withConnectedSession (server.mappedImapPort()) { session =>
         val handler = system.actorOf(LoginHandler.props(session, tag))
-        probe.send(handler, Command.Login("userId1", bart))
+        probe.send(handler, Command.Login(UserId(1), bart))
       }
       probe.expectMsgPF(1.minute) {
         case Response.LoggedIn(responses) => responses.isOk shouldBe true
