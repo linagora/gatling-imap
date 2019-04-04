@@ -76,7 +76,7 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
   val uri = new URI(s"imap://${protocol.host}:${protocol.port}")
   val config: Properties = protocol.config
   logger.debug(s"connecting to $uri with $config")
-  val session: ClientSession = client.createSession(uri, config, connectionListener, new LogManager(Logger.Level.FATAL, LogPage.DEFAULT_SIZE))
+  val session: ClientSession = client.createSession(uri, config, connectionListener, new LogManager(Logger.Level.ERROR, LogPage.DEFAULT_SIZE))
   private var currentTag: Tag = Tag.initial
 
   override def receive: Receive = disconnected
