@@ -10,9 +10,5 @@ import scala.concurrent.duration._
 class ImapStoreSimulation extends Simulation {
   val userFeeder = csv("data/users.csv").circular
 
-  val scn = scenario("ImapStore")
-    .feed(userFeeder)
-    .exec(ImapStoreScenario.storeScenario)
-
-  setUp(scn.inject(atOnceUsers(1))).protocols(imap.host("localhost"))
+  setUp(ImapStoreScenario(userFeeder).inject(atOnceUsers(1))).protocols(imap.host("localhost"))
 }

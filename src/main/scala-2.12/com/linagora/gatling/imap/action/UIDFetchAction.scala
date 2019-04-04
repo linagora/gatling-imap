@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.action
 
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.Command
+import com.linagora.gatling.imap.protocol.{Command, UserId}
 import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges}
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.ValidatedActionActor
@@ -24,7 +24,7 @@ class UIDFetchAction(val imapContext: ImapActionContext, val requestName: String
     } yield {
       val id: Long = session.userId
       val handler = handleResponse(session, imapContext.clock.nowMillis)
-      sessions.tell(Command.UIDFetch(id.toString, sequence, attributes), handler)
+      sessions.tell(Command.UIDFetch(UserId(id), sequence, attributes), handler)
     }
   }
 }

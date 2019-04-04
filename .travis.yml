@@ -3,4 +3,8 @@ scala:
    - 2.12.8
 services:
   - docker
-  
+script:
+  - sbt compile
+  - sbt test
+  - sbt gatling-it:test
+

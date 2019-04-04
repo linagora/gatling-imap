@@ -26,7 +26,7 @@ object ImapProtocol {
 case class ImapComponents(protocol: ImapProtocol, sessions: ActorRef) extends ProtocolComponents {
   override def onStart: Session => Session = s => s
 
-  override def onExit: Session => Unit = session => sessions ! Disconnect(session.userId.toString)
+  override def onExit: Session => Unit = session => sessions ! Disconnect(UserId(session.userId))
 }
 
 case class ImapProtocol(host: String,

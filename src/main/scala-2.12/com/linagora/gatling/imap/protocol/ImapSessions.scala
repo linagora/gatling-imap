@@ -16,6 +16,8 @@ import io.gatling.core.util.NameGen
 
 import scala.util.control.NoStackTrace
 
+case class UserId(value: Long) extends AnyVal
+
 object ImapSessions {
   def props(protocol: ImapProtocol): Props = Props(new ImapSessions(protocol))
 }
@@ -28,12 +30,12 @@ class ImapSessions(protocol: ImapProtocol) extends BaseActor {
       sessionFor(cmd.userId).forward(cmd)
   }
 
-  private def sessionFor(userId: String) = {
-    context.child(userId).getOrElse(createImapSession(userId))
+  private def sessionFor(userId: UserId) = {
+    context.child(userId.value.toString).getOrElse(createImapSession(userId))
   }
 
-  protected def createImapSession(userId: String) = {
-    context.actorOf(ImapSession.props(imapClient, protocol), userId)
+  protected def createImapSession(userId: UserId) = {
+    context.actorOf(ImapSession.props(imapClient, protocol), userId.value.toString)
   }
 
   @scala.throws[Exception](classOf[Exception])

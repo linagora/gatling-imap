@@ -5,17 +5,22 @@ import java.util
 import akka.actor.{ActorRef, Props}
 import com.lafaspot.imapnio.client.IMAPSession
 import com.lafaspot.imapnio.listener.IMAPCommandListener
-import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag}
+import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response, Tag, UserId}
 import com.sun.mail.imap.protocol.IMAPResponse
 import io.gatling.core.akka.BaseActor
 
-import scala.collection.immutable.Seq
+import collection.immutable.Seq
 
-sealed abstract class StoreFlags(prefix: String, silent: Silent, flags: String*) {
+sealed abstract class StoreFlags(prefix: String) {
+  def flags: Seq[String]
+  def silent: Silent
+
   val silentAsString: String = if (silent.enable) ".SILENT" else ""
   val flagsAsString: String  = flags.mkString("(", " ", ")")
 
   def asString: String = s"${prefix}${silentAsString} ${flagsAsString}"
+
+  def setFlags(flags: Seq[String]): StoreFlags
 }
 
 abstract class Silent(val enable: Boolean) { }
@@ -27,11 +32,22 @@ object Silent {
 }
 
 object StoreFlags {
-  case class FlagReplace(silent: Silent, flags: String*) extends StoreFlags("FLAGS", silent, flags:_*)
 
-  case class FlagAdd(silent: Silent, flags: String*) extends StoreFlags("+FLAGS", silent, flags:_*)
+  def replace(silent: Silent, flags: String*): FlagReplace = FlagReplace(silent, Seq(flags:_*))
+  def add(silent: Silent, flags: String*): FlagReplace = FlagReplace(silent, Seq(flags:_*))
+  def remove(silent: Silent, flags: String*): FlagReplace = FlagReplace(silent, Seq(flags:_*))
 
-  case class FlagRemove(silent: Silent, flags: String*) extends StoreFlags("-FLAGS", silent, flags:_*)
+  case class FlagReplace(silent: Silent, flags: Seq[String]) extends StoreFlags("FLAGS") {
+    override def setFlags(flags: Seq[String]): FlagReplace = FlagReplace(silent = silent, flags = flags)
+  }
+
+  case class FlagAdd(silent: Silent, flags: Seq[String]) extends StoreFlags("+FLAGS") {
+    override def setFlags(flags: Seq[String]): FlagAdd = FlagAdd(silent = silent, flags = flags)
+  }
+
+  case class FlagRemove(silent: Silent, flags: Seq[String]) extends StoreFlags("-FLAGS") {
+    override def setFlags(flags: Seq[String]): FlagRemove = FlagRemove(silent = silent, flags = flags)
+  }
 }
 
 object StoreHandler {
@@ -55,7 +71,7 @@ class StoreHandler(session: IMAPSession, tag: Tag) extends BaseActor {
   }
 
 
-  class StoreListener(userId: String) extends IMAPCommandListener {
+  class StoreListener(userId: UserId) extends IMAPCommandListener {
 
     import collection.JavaConverters._
 
@@ -64,7 +80,7 @@ class StoreHandler(session: IMAPSession, tag: Tag) extends BaseActor {
     }
 
     override def onResponse(session: IMAPSession, tag: String, responses: util.List[IMAPResponse]): Unit = {
-      val response = ImapResponses(responses.asScala.to[Seq])
+      val response = ImapResponses(responses.asScala.to[collection.immutable.Seq])
       logger.trace(s"On response for $userId :\n ${response.mkString("\n")}\n ${sender.path}")
       self ! Response.Stored(response)
     }
