@@ -17,6 +17,15 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test,it"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "it"
 libraryDependencies += "org.testcontainers" % "testcontainers" % "1.11.0" % "it"
 
+//dependencies for local jar "com.github.krdev.imapnio" % "imapnio.core"
+libraryDependencies += "com.github.lafa.logfast" % "logfast.core" % "1.0.6"
+libraryDependencies += "com.google.code.findbugs" % "jsr305" % "1.3.9"
+libraryDependencies += "io.netty" % "netty-handler" % "4.1.5.Final"
+libraryDependencies += "com.sun.mail" % "javax.mail" % "1.5.2"
+libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.12"
+libraryDependencies += "ch.qos.logback" % "logback-core" % "1.1.3"
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
+
 resolvers += Resolver.mavenLocal
 
 cancelable in Global := true

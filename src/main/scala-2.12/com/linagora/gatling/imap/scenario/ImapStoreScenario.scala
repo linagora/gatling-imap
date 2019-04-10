@@ -30,7 +30,7 @@ object ImapStoreScenario {
 
   private val populateInbox = repeat(numberOfMailInInbox)(pause(appendGracePeriod).exec(populateMailbox))
 
-  implicit def storeFlags2Expression(value: StoreFlags): Expression[StoreFlags] = session =>
+  private implicit def storeFlags2Expression(value: StoreFlags): Expression[StoreFlags] = session =>
     Validation.sequence(value.flags.map(flag => flag.el[String]).map(expr => expr(session)))
       .map(mutable => collection.immutable.Seq(mutable:_*))
       .map(flags => value.setFlags(flags))

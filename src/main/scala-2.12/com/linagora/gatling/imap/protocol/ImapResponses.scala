@@ -1,5 +1,7 @@
 package com.linagora.gatling.imap.protocol
 
+import java.util.regex.Pattern
+
 import com.sun.mail.imap.protocol.IMAPResponse
 
 import scala.collection.immutable.Seq
@@ -46,7 +48,12 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
 
 object ImapResponses {
   val empty = ImapResponses(Seq.empty)
-  private val Recent = """^\* (\d+) RECENT$""".r
-  private val List = """^^\* LIST .* (?:([^ "]+)|"(.*)")$""".r
-  private val UidRegex = """^\* .*UID (\d+).*$""".r
+
+  private[this] val dotAllFlag = """(?s)"""
+  private[this] val startWithStar = """^(?:(?:, )?\*)"""
+  private[this] val mailboxName = """(?:"([^"]*)"|([^"\s]*))"""
+
+  private val Recent = (dotAllFlag + startWithStar + """ (\d+) RECENT\s*$""").r
+  private val List = ("""^\* LIST .*? """ + mailboxName + """\s*$""").r
+  private val UidRegex = (dotAllFlag + startWithStar + """ .*UID (\d+).*$""").r
 }
