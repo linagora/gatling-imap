@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.scenario.it
 
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.PreDef.imap
-import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapExpungeScenario, ImapSimpleScenario, ImapStoreScenario, ImapUIDFetchScenario}
+import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapExpungeScenario, ImapSimpleScenario, ImapUIDFetchScenario}
 import com.linagora.gatling.imap.{CyrusServer, Fixture, RunningServer}
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.funspec.GatlingFunSpec
@@ -36,10 +36,6 @@ class ImapExpungeScenarioIT extends BaseIt {
 
 class ImapSimpleScenarioIT extends BaseIt {
   scenario(ImapSimpleScenario(_))
-}
-
-class ImapStoreScenarioIT extends BaseIt {
-  scenario(ImapStoreScenario(_))
 }
 
 class ImapUIDFetchScenarioIT extends BaseIt {
