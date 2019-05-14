@@ -43,6 +43,13 @@ You can find a full example into ImapAuthenticationScenario.  Here is the intere
   setUp(scn.inject(constantUsersPerSec(UserCount).during(2.seconds))).protocols(imap.host("localhost"))
 ----
 
+== Configuration
+
+You can set up the following environment variables:
+
+ * `TARGET_HOSTNAME` which is set to `localhost` by default
+ * `IMAP_PORT` which is set to `143` by default
+
 == Tests
 
 === Hint: quick cyrus installation
