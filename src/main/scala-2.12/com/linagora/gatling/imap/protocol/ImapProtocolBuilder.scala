@@ -1,7 +1,11 @@
 package com.linagora.gatling.imap.protocol
 
+import scala.util.Properties
+
 object ImapProtocolBuilder {
-  val default = new ImapProtocolBuilder("localhost", 143)
+  val HOSTNAME = Properties.envOrElse("TARGET_HOSTNAME", "localhost")
+  val PORT = Properties.envOrElse("IMAP_PORT", "143").toInt
+  val default = new ImapProtocolBuilder(HOSTNAME, PORT)
 }
 
 case class ImapProtocolBuilder(host: String, port: Int) {
