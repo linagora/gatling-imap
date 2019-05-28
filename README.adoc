@@ -45,7 +45,7 @@ You can find a full example into ImapAuthenticationScenario.  Here is the intere
 
 == Configuration
 
-You can set up the following environment variables:
+You can set up the following system properties:
 
  * `TARGET_HOSTNAME` which is set to `localhost` by default
  * `IMAP_PORT` which is set to `143` by default
