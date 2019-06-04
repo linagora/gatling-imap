@@ -139,6 +139,8 @@ private class ImapSession(client: IMAPClient, protocol: ImapProtocol) extends Ba
     case msg@Command.Disconnect(userId) =>
       session.disconnect()
       context.become(disconnecting(sender()))
+    case message =>
+      logger.error(s"connected - got unexpected message $message")
 
   }
 
