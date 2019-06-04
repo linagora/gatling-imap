@@ -12,12 +12,12 @@ import io.gatling.core.session.Session
 import scala.collection.immutable.Seq
 
 object ImapResponseHandler {
-  def props(imapActionContext: ImapActionContext, requestName: String, session: Session, start: Long, checks: Seq[Check[ImapResponses]]): Props = {
-    Props(new ImapResponseHandler(imapActionContext, requestName, session, start, checks))
+  def props(imapActionContext: ImapActionContext, requestName: String, session: Session, start: Long, checks: Seq[Check[ImapResponses]], successOnDisconnect : Boolean = false): Props = {
+    Props(new ImapResponseHandler(imapActionContext, requestName, session, start, checks, successOnDisconnect))
   }
 }
 
-class ImapResponseHandler(imapActionContext: ImapActionContext, requestName: String, session: Session, start: Long, checks: Seq[Check[ImapResponses]]) extends BaseActor {
+class ImapResponseHandler(imapActionContext: ImapActionContext, requestName: String, session: Session, start: Long, checks: Seq[Check[ImapResponses]], successOnDisconnect : Boolean) extends BaseActor {
   private val statsEngine = imapActionContext.statsEngine
   private val next = imapActionContext.next
 
@@ -27,8 +27,10 @@ class ImapResponseHandler(imapActionContext: ImapActionContext, requestName: Str
       error.fold(ok(newSession, start))(ko(session, start))
     case e: Exception =>
       ko(session, start)(Failure(e.getMessage))
-    case Disconnected(e) =>
+    case Disconnected(e) if !successOnDisconnect =>
       ko(session, start)(Failure(e.getMessage))
+    case Disconnected(e) if successOnDisconnect =>
+      ok(session, start)
     case msg =>
       logger.error(s"received unexpected message $msg")
   }

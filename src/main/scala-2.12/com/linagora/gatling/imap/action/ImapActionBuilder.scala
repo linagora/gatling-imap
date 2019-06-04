@@ -50,6 +50,10 @@ class ImapActionBuilder(requestName: String) {
   def connect(): ImapConnectActionBuilder = {
     ImapConnectActionBuilder(requestName)
   }
+
+  def disconnect(): ImapDisconnectActionBuilder = {
+    ImapDisconnectActionBuilder(requestName)
+  }
 }
 
 abstract class ImapCommandActionBuilder extends ActionBuilder with NameGen {
@@ -145,4 +149,11 @@ case class ImapConnectActionBuilder(requestName: String) extends ImapCommandActi
     ConnectAction.props(ctx, requestName)
 
   override val actionName: String = "connect-action"
+}
+
+case class ImapDisconnectActionBuilder(requestName: String) extends ImapCommandActionBuilder {
+  override def props(ctx: ImapActionContext): Props =
+    DisconnectAction.props(ctx, requestName)
+
+  override val actionName: String = "disconnect-action"
 }

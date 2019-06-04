@@ -24,6 +24,8 @@ trait ImapActionActor {
 
   def checks: Seq[Check[ImapResponses]] = Seq.empty
 
+  def successOnDisconnect : Boolean = false
+
   protected def handleResponse(session: Session, start: Long): ActorRef =
-    context.actorOf(ImapResponseHandler.props(imapContext, requestName, session, start, checks))
+    context.actorOf(ImapResponseHandler.props(imapContext, requestName, session, start, checks, successOnDisconnect))
 }

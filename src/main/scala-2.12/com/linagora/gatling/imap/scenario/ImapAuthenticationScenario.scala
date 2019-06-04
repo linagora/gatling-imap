@@ -27,5 +27,6 @@ object ImapAuthenticationScenario {
         |
         |Test content""".stripMargin).check(ok))
     .exec(imap("fetch").fetch(MessageRanges(One(1), One(2), Range(3,5), From(3), One(8), To(1)), AttributeList("BODY", "UID")).check(ok, hasUid(Uid(1)), contains("TEXT")))
+    .exec(imap("Disconnect").disconnect())
 
 }
