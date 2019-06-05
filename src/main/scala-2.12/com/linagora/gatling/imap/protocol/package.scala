@@ -8,6 +8,7 @@ import scala.collection.immutable.Seq
 
 package object protocol {
 
+  case class Domain(value: String) extends AnyVal
   case class User(login: String, password: String)
 
   trait Command {

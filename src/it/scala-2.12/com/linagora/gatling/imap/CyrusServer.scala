@@ -1,5 +1,6 @@
 package com.linagora.gatling.imap
 
+import com.linagora.gatling.imap.protocol.{Domain, User}
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.containers.GenericContainer
 
@@ -17,20 +18,25 @@ object CyrusServer extends Server {
     protected val logger: Logger = CyrusServer.logger
     lazy val mappedImapPort: Integer = container.getMappedPort(imapPort)
 
-    def addUser(login: String, password: String): Unit = {
-      container.execInContainer("bash", "-c", s"echo $password | saslpasswd2 -u test -c $login -p")
+    def addUser(user: User): Unit = {
+      container.execInContainer("bash", "-c", s"echo ${user.password} | saslpasswd2 -u test -c ${user.login} -p")
       implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
       Await.result(
         connect(mappedImapPort)
           .flatMap(implicit session =>
-          for {
-            _ <- Imap.login("cyrus", "cyrus")
-            _ <- Imap.rawCommand(new CreateFolderCommand(s"user.$login"))
-            _ <- Imap.disconnect()
-          } yield ()), 1.minute)
+            for {
+              _ <- Imap.login("cyrus", "cyrus")
+              _ <- Imap.rawCommand(new CreateFolderCommand(s"user.${user.login}"))
+              _ <- Imap.disconnect()
+            } yield ()), 1.minute)
 
     }
+
     def stop(): Unit = container.stop()
+
+    override def addDomain(domain: Domain): Unit = {
+      //do nothing
+    }
   }
 
   def start(): RunningServer = {
