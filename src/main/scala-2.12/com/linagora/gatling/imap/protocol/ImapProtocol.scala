@@ -1,6 +1,7 @@
 package com.linagora.gatling.imap.protocol
 
 import java.util.Properties
+import java.util.UUID.randomUUID
 
 import akka.actor.ActorRef
 import com.linagora.gatling.imap.protocol.Command.Disconnect
@@ -17,7 +18,7 @@ object ImapProtocol {
     override def defaultProtocolValue(configuration: GatlingConfiguration): ImapProtocol = throw new IllegalStateException("Can't provide a default value for ImapProtocol")
 
     override def newComponents(coreComponents: CoreComponents): ImapProtocol => ImapComponents = { protocol =>
-      val sessions: ActorRef = coreComponents.actorSystem.actorOf(ImapSessions.props(protocol), "imapsessions")
+      val sessions: ActorRef = coreComponents.actorSystem.actorOf(ImapSessions.props(protocol), "imapsessions_" + randomUUID().toString)
       ImapComponents(protocol, sessions)
     }
   }
