@@ -28,7 +28,7 @@ class AppendHandler(session: IMAPSession, tag: Tag) extends BaseActor {
 
   private[this] def doOnMessageForContent(content: String): (IMAPSession, IMAPResponse) => Unit = (session, response) => {
     if (response.isContinuation) {
-      content.lines.foreach(executeTextCommand(session))
+      content.linesIterator.foreach(executeTextCommand(session))
     }
   }
 
@@ -38,7 +38,7 @@ class AppendHandler(session: IMAPSession, tag: Tag) extends BaseActor {
 
       val listener = new RespondToActorIMAPCommandListener(self, userId, Response.Appended, doOnMessage = doOnMessageForContent(content))(logger)
       val flagsAsString = flags.map(_.mkString("(", " ", ")")).getOrElse("()")
-      val length = content.length + content.lines.length - 1
+      val length = content.length + content.linesIterator.length - 1
       logger.debug(s"APPEND receive from sender ${sender.path} on ${self.path}")
       context.become(waitCallback(sender()))
       Try(session.executeAppendCommand(tag.string, mailbox, flagsAsString, length.toString, listener)) match {
