@@ -43,14 +43,12 @@ class AppendHandler(session: IMAPSession, tag: Tag) extends BaseActor {
       context.become(waitCallback(sender()))
       Try(session.executeAppendCommand(tag.string, mailbox, flagsAsString, length.toString, listener)) match {
         case Success(futureResult) =>
-          futureResult.addListener(new IMAPChannelFutureListener {
-            override def operationComplete(future: IMAPChannelFuture): Unit = {
-              logger.debug(s"AppendHandler command completed, success : ${future.isSuccess}")
-              if (!future.isSuccess) {
-                logger.error("AppendHandler command failed", future.cause())
-              }
-
+          futureResult.addListener((future: IMAPChannelFuture) => {
+            logger.debug(s"AppendHandler command completed, success : ${future.isSuccess}")
+            if (!future.isSuccess) {
+              logger.error("AppendHandler command failed", future.cause())
             }
+
           })
         case Failure(e) =>
           logger.error("ERROR when executing APPEND COMMAND", e)
