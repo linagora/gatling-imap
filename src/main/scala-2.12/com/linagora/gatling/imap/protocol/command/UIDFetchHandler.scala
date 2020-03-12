@@ -1,25 +1,26 @@
 package com.linagora.gatling.imap.protocol.command
 
 import akka.actor.{ActorRef, Props}
-import com.lafaspot.imapnio.client.IMAPSession
 import com.linagora.gatling.imap.protocol._
+import com.yahoo.imapnio.async.client.ImapAsyncSession
+import com.yahoo.imapnio.async.request.UidFetchCommand
 import io.gatling.core.akka.BaseActor
 
 object UIDFetchHandler {
-  def props(session: IMAPSession, tag: Tag) = Props(new UIDFetchHandler(session, tag))
+  def props(session: ImapAsyncSession) = Props(new UIDFetchHandler(session))
 }
 
-class UIDFetchHandler(session: IMAPSession, tag: Tag) extends BaseActor {
+class UIDFetchHandler(session: ImapAsyncSession) extends BaseActor {
 
   override def receive: Receive = {
     case Command.UIDFetch(userId, sequence, attributes) =>
-      val listener = new RespondToActorIMAPCommandListener(self, userId, Response.Fetched)(logger)
       context.become(waitCallback(sender()))
-      session.executeTaggedRawTextCommand(tag.string, s"UID FETCH ${sequence.asString} ${attributes.asString}", listener)
+      ImapSessionExecutor.listen(self, userId, Response.Fetched)(logger)(session.execute(new UidFetchCommand(sequence.asImap, attributes.asString)))
+
   }
 
   def waitCallback(sender: ActorRef): Receive = {
-    case msg@Response.Fetched(response) =>
+    case msg@Response.Fetched(_) =>
       sender ! msg
       context.stop(self)
   }

@@ -3,6 +3,8 @@ package com.linagora.gatling.imap
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.containers.GenericContainer
 
+import com.yahoo.imapnio.async.request.CreateFolderCommand
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 
@@ -23,7 +25,7 @@ object CyrusServer extends Server {
           .flatMap(implicit session =>
           for {
             _ <- Imap.login("cyrus", "cyrus")
-            _ <- Imap.rawCommand(s"CREATE user.$login")
+            _ <- Imap.rawCommand(new CreateFolderCommand(s"user.$login"))
             _ <- Imap.disconnect()
           } yield ()), 1.minute)
 

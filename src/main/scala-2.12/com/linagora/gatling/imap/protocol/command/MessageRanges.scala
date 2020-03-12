@@ -1,5 +1,7 @@
 package com.linagora.gatling.imap.protocol.command
 
-case class MessageRanges(val messageRange: MessageRange*) {
-  def asString: String = messageRange.map(_.asString).mkString(",")
+import com.yahoo.imapnio.async.data.MessageNumberSet
+
+case class MessageRanges(messageRanges: MessageRange*) {
+  def asImap: Array[MessageNumberSet] = messageRanges.map(_.asImap).toArray
 }
