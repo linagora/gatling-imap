@@ -3,7 +3,7 @@ package com.linagora.gatling.imap.protocol.command
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
-import com.linagora.gatling.imap.protocol.{Command, Response, Tag, UserId}
+import com.linagora.gatling.imap.protocol.{Command, Response, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.matchers.{MatchResult, Matcher}
@@ -12,7 +12,7 @@ import org.slf4j
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
-
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
@@ -31,12 +31,12 @@ class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEa
   implicit lazy val system: ActorSystem = ActorSystem("LoginHandlerSpec")
   "Login handler" should {
     "send the response back when logged in" in {
-      val tag = Tag.initial
       val probe = TestProbe()
-      withConnectedSession (server.mappedImapPort()) { session =>
-        val handler = system.actorOf(LoginHandler.props(session, tag))
+      val sessionFuture = connect(server.mappedImapPort())
+      sessionFuture.onComplete(session => {
+        val handler = system.actorOf(LoginHandler.props(session.get))
         probe.send(handler, Command.Login(UserId(1), bart))
-      }
+      })
       probe.expectMsgPF(1.minute) {
         case Response.LoggedIn(responses) => responses.isOk shouldBe true
       }
