@@ -2,6 +2,7 @@ package com.linagora.gatling.imap.protocol
 
 import java.net.URI
 import java.util.Properties
+import java.util.concurrent.ConcurrentLinkedQueue
 
 import akka.actor.{Props, Stash}
 import com.linagora.gatling.imap.protocol.command._
@@ -19,8 +20,7 @@ object ImapSessions {
 }
 
 class ImapSessions(protocol: ImapProtocol) extends BaseActor {
-  val imapClient = new ImapAsyncClient(4)
-
+  val imapClients = new ConcurrentLinkedQueue[ImapAsyncClient]()
   override def receive: Receive = {
     case cmd: Command =>
       sessionFor(cmd.userId).forward(cmd)
@@ -34,20 +34,26 @@ class ImapSessions(protocol: ImapProtocol) extends BaseActor {
     context.actorOf(ImapSession.props(imapClient, protocol), userId.value.toString)
   }
 
+  private def imapClient = {
+    val client = new ImapAsyncClient(1)
+    imapClients.add(client)
+    client
+  }
+
   @scala.throws[Exception](classOf[Exception])
   override def postStop(): Unit = {
     super.postStop()
-    imapClient.shutdown()
+    imapClients.stream().forEach(_.shutdown())
   }
 }
 
 private object ImapSession {
-  def props(client: ImapAsyncClient, protocol: ImapProtocol): Props =
+  def props(client: => ImapAsyncClient, protocol: ImapProtocol): Props =
     Props(new ImapSession(client, protocol))
 
 }
 
-private class ImapSession(client: ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
+private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
   val uri = new URI(s"imap://${protocol.host}:${protocol.port}")
   val config: Properties = protocol.config
   logger.debug(s"connecting to $uri with $config")
