@@ -3,7 +3,7 @@ package com.linagora.gatling.imap.protocol.command
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
-import com.linagora.gatling.imap.protocol.{Command, Response, Tag, UserId}
+import com.linagora.gatling.imap.protocol.{Command, Response, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.matchers.{MatchResult, Matcher}
