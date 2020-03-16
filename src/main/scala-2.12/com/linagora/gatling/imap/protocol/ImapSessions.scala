@@ -35,7 +35,8 @@ class ImapSessions(protocol: ImapProtocol) extends BaseActor {
   }
 
   private def imapClient = {
-    val client = new ImapAsyncClient(1)
+    val numOfThreads = 1
+    val client = new ImapAsyncClient(numOfThreads)
     imapClients.add(client)
     client
   }
