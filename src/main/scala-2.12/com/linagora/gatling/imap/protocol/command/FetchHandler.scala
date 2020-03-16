@@ -26,7 +26,7 @@ object FetchAttributes {
   }
 
   case class AttributeList(fetchAttributes: String*) extends FetchAttributes {
-    override def asString = fetchAttributes.mkString("(", " ", ")")
+    override def asString = fetchAttributes.mkString(" ")
   }
 
 }

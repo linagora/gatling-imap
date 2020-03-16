@@ -27,8 +27,9 @@ class AppendHandler(session: ImapAsyncSession) extends BaseActor {
       logger.debug(s"APPEND receive from sender ${sender.path} on ${self.path}")
       context.become(waitCallback(sender()))
       val nullDate = null
+      val crLfContent = content.replaceAll("(?<!\r)\n", "\r\n").getBytes(StandardCharsets.UTF_8)
       ImapSessionExecutor
-        .listenWithHandler(self, userId, Response.Appended, callback)(logger)(session.execute(new AppendCommand(mailbox, flags.map(toImapFlags).orNull, nullDate, content.getBytes(StandardCharsets.UTF_8))))
+        .listenWithHandler(self, userId, Response.Appended, callback)(logger)(session.execute(new AppendCommand(mailbox, flags.map(toImapFlags).orNull, nullDate, crLfContent)))
   }
 
   private def callback(response: Future[ImapAsyncResponse]) = {
