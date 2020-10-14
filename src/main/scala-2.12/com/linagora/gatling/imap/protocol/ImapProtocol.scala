@@ -13,12 +13,15 @@ import io.gatling.core.session.Session
 object ImapProtocol {
   val ImapProtocolKey = new ProtocolKey[ImapProtocol, ImapComponents] {
 
+    var protocolNumber: Int = 0
+
     override def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[ImapProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
     override def defaultProtocolValue(configuration: GatlingConfiguration): ImapProtocol = throw new IllegalStateException("Can't provide a default value for ImapProtocol")
 
     override def newComponents(coreComponents: CoreComponents): ImapProtocol => ImapComponents = { protocol =>
-      val sessions: ActorRef = coreComponents.actorSystem.actorOf(ImapSessions.props(protocol), "imapsessions_" + randomUUID().toString)
+      val sessions: ActorRef = coreComponents.actorSystem.actorOf(ImapSessions.props(protocol), s"imapsessions-${protocolNumber}")
+      protocolNumber += 1
       ImapComponents(protocol, sessions)
     }
   }
