@@ -21,7 +21,16 @@ trait ImapCheckSupport {
     }
   }
 
+  def hasExists(expected: Int) = ImapValidationCheck { responses =>
+    responses.countExists match {
+      case Some(count) if count == expected => CheckResult.NoopCheckResultSuccess
+      case Some(count) => Failure(s"Expected $expected existing messages but got $count")
+      case None => Failure(s"Imap protocol violation : no valid EXISTS response received")
+    }
+  }
+
   def hasNoRecent = hasRecent(0)
+  def hasNoExists = hasExists(0)
 
   def hasFolder(expected: String) =
     ImapSimpleCheck(
