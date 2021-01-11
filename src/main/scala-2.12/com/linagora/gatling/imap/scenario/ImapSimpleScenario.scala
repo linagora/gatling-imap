@@ -42,7 +42,7 @@ object ImapSimpleScenario extends Simulation {
         .pause(200 milli)
         .exec(imap("expunge").expunge().check(ok))
         .pause(200 milli)
-        .exec(imap("fetch after expunge").fetch(MessageRanges(Last()), AttributeList("BODY[HEADER]", "UID", "BODY[TEXT]")).check(no))
+        .exec(imap("select check is empty").select("INBOX").check(hasNoExists))
     }
 
 }

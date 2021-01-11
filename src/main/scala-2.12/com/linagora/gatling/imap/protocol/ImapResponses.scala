@@ -26,6 +26,12 @@ case class ImapResponses(responses: Seq[IMAPResponse]) {
         case Recent(actual) => actual.toInt
       }
   }
+  def countExists: Option[Int] = {
+    responses.map(_.toString).find(_.matches(Exists.regex))
+      .map {
+        case Exists(actual) => actual.toInt
+      }
+  }
 
   def folderList: Seq[String] = {
     responses.map(_.toString).filter(_.matches(List.regex))
@@ -54,6 +60,7 @@ object ImapResponses {
   private[this] val mailboxName = """(?:"([^"]*)"|([^"\s]*))"""
 
   private val Recent = (dotAllFlag + startWithStar + """ (\d+) RECENT\s*$""").r
+  private val Exists = (dotAllFlag + startWithStar + """ (\d+) EXISTS\s*$""").r
   private val List = ("""^\* LIST .*? """ + mailboxName + """\s*$""").r
   private val UidRegex = (dotAllFlag + startWithStar + """ .*UID (\d+).*$""").r
 }
