@@ -55,7 +55,7 @@ private object ImapSession {
 }
 
 private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
-  val uri = new URI(s"imap://${protocol.host}:${protocol.port}")
+  val uri = new URI(s"${protocol.protocol}://${protocol.host}:${protocol.port}")
   val config: Properties = protocol.config
   logger.debug(s"connecting to $uri with $config")
   val session: ImapAsyncSession = {

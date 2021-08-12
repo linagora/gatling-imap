@@ -30,7 +30,7 @@ class ImapSessionsSpec extends WordSpec with Matchers with ImapTestUtils with Be
   "the imap sessions actor" should {
     "log a user in" in {
       val config = new Properties()
-      val protocol = ImapProtocol("localhost", server.mappedImapPort(), config)
+      val protocol = ImapProtocol("localhost", server.mappedImapPort(), "imap", config)
 
       val sessions = system.actorOf(ImapSessions.props(protocol))
       val probe = TestProbe()
