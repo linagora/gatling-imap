@@ -49,6 +49,7 @@ You can set up the following system properties:
 
  * `TARGET_HOSTNAME` which is set to `localhost` by default
  * `IMAP_PORT` which is set to `143` by default
+ * `IMAP_PROTOCOL` (`imap` or `imaps`) which is set to `imap` by default.
 
 == Tests
 

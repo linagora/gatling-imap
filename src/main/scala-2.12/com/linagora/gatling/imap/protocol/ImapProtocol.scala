@@ -32,5 +32,6 @@ case class ImapComponents(protocol: ImapProtocol, sessions: ActorRef) extends Pr
 
 case class ImapProtocol(host: String,
                         port: Int = 143,
+                        protocol: String = "imap",
                         config: Properties = new Properties()
                        ) extends Protocol
