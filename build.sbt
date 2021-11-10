@@ -29,6 +29,6 @@ libraryDependencies += "ch.qos.logback" % "logback-core" % "1.1.3"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
 
 resolvers += Resolver.mavenLocal
-resolvers += "Yahoo" at "https://dl.bintray.com/yahoo/maven"
+resolvers += "Yahoo" at "https://jcenter.bintray.com/"
 
 cancelable in Global := true
