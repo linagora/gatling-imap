@@ -5,6 +5,7 @@ import java.net.URL
 import com.linagora.gatling.imap.protocol.{Domain, User}
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.utility.MountableFile
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -37,7 +38,13 @@ object JamesServer extends Server {
   }
 
   def start(): RunningServer = {
-    val james = new GenericContainer("linagora/james-memory")
+    val james = new GenericContainer("linagora/tmail-backend:memory-0.4.3")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/jwt_privatekey"), "/root/conf/")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/jwt_publickey"), "/root/conf/")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/webadmin.properties"), "/root/conf/")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/keystore"), "/root/conf/")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/imapserver.xml"), "/root/conf/")
+    james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/smtpserver.xml"), "/root/conf/")
     james.addExposedPorts(jmapPort, imapPort, smtpPort, webadminPort)
     james.start()
     new RunningJamesServer(james)
