@@ -113,10 +113,10 @@ A1 OK [READ-WRITE] Completed
 Some simple integration tests are available via:
 
 ----
-$ sbt test
+$ sbt GatlingIt/test
 ----
 
-Finally execute your gatling scenarios:
+Finally, execute your gatling scenarios:
 
 ----
 $ sbt gatling:test
