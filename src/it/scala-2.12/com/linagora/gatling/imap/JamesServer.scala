@@ -38,7 +38,7 @@ object JamesServer extends Server {
   }
 
   def start(): RunningServer = {
-    val james = new GenericContainer("linagora/tmail-backend:memory-0.4.3")
+    val james = new GenericContainer("linagora/tmail-backend:memory-branch-master")
     james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/jwt_privatekey"), "/root/conf/")
     james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/jwt_publickey"), "/root/conf/")
     james.withCopyFileToContainer(MountableFile.forClasspathResource("james-conf/webadmin.properties"), "/root/conf/")
