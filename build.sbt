@@ -13,7 +13,7 @@ enablePlugins(GatlingPlugin)
 
 libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion exclude("io.gatling", "gatling-http")
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-http")
-libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "3.0.15"
+libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "4.3.7"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test,it"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "it"
 libraryDependencies += "org.testcontainers" % "testcontainers" % "1.11.0" % "it"
@@ -29,6 +29,5 @@ libraryDependencies += "ch.qos.logback" % "logback-core" % "1.1.3"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
 
 resolvers += Resolver.mavenLocal
-resolvers += "Yahoo" at "https://jcenter.bintray.com/"
 
 cancelable in Global := true
