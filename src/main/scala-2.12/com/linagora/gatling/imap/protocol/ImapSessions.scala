@@ -20,7 +20,11 @@ object ImapSessions {
 }
 
 class ImapSessions(protocol: ImapProtocol) extends BaseActor {
-  val imapClients = new ConcurrentLinkedQueue[ImapAsyncClient]()
+  private val imapClient = {
+    val numOfThreads = 8
+    new ImapAsyncClient(numOfThreads)
+  }
+
   override def receive: Receive = {
     case cmd: Command =>
       sessionFor(cmd.userId).forward(cmd)
@@ -34,17 +38,10 @@ class ImapSessions(protocol: ImapProtocol) extends BaseActor {
     context.actorOf(ImapSession.props(imapClient, protocol), userId.value.toString)
   }
 
-  private def imapClient = {
-    val numOfThreads = 1
-    val client = new ImapAsyncClient(numOfThreads)
-    imapClients.add(client)
-    client
-  }
-
   @scala.throws[Exception](classOf[Exception])
   override def postStop(): Unit = {
     super.postStop()
-    imapClients.stream().forEach(_.shutdown())
+    imapClient.shutdown()
   }
 }
 
