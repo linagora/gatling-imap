@@ -63,7 +63,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
 
     val localAddress = null
     client
-      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_ON, "ImapSession")
+      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession")
       .get()
       .getSession
   }
@@ -78,7 +78,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case Response.Disconnected(_) => ()
     case Command.Disconnect(_) => ()
     case msg =>
-      logger.error(s"disconnected - unexpected message from ${sender.path} " + msg)
+      logger.error(s"disconnected - unexpected message from ${sender.path} ${msg}")
       if (sender.path != self.path)
         sender ! ImapStateError(s"session for ${self.path.name} is not connected")
   }
