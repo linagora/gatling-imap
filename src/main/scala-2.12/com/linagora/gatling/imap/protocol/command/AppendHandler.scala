@@ -1,11 +1,12 @@
 package com.linagora.gatling.imap.protocol.command
 
 import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 import javax.mail.Flags
-
 import akka.actor.{ActorRef, Props}
 import com.linagora.gatling.imap.protocol._
+import com.linagora.gatling.imap.protocol.command.AppendHandler.crLfRegex
 import com.yahoo.imapnio.async.client.ImapAsyncSession
 import com.yahoo.imapnio.async.request.AppendCommand
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
@@ -16,6 +17,8 @@ import scala.util.{Failure, Success, Try}
 
 object AppendHandler {
   def props(session: ImapAsyncSession) = Props(new AppendHandler(session))
+
+  private val crLfRegex = Pattern.compile("(?<!\r)\n")
 }
 
 class AppendHandler(session: ImapAsyncSession) extends BaseActor {
@@ -27,7 +30,7 @@ class AppendHandler(session: ImapAsyncSession) extends BaseActor {
       logger.debug(s"APPEND receive from sender ${sender.path} on ${self.path}")
       context.become(waitCallback(sender()))
       val nullDate = null
-      val crLfContent = content.replaceAll("(?<!\r)\n", "\r\n").getBytes(StandardCharsets.UTF_8)
+      val crLfContent = crLfRegex.matcher(content).replaceAll("\r\n").getBytes(StandardCharsets.UTF_8)
       ImapSessionExecutor
         .listenWithHandler(self, userId, Response.Appended, callback)(logger)(session.execute(new AppendCommand(mailbox, flags.map(toImapFlags).orNull, nullDate, crLfContent)))
   }
