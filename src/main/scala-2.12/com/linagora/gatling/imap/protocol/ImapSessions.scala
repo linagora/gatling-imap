@@ -66,7 +66,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
 
     val localAddress = null
     client
-      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_ON, "ImapSession")
+      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession")
       .get()
       .getSession
   }
