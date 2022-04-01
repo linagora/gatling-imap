@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.protocol
 
 import java.net.URI
 import java.util.Properties
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.function.Consumer
 
 import akka.actor.{Props, Stash}
 import com.linagora.gatling.imap.protocol.command._
@@ -109,9 +109,12 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
       val handler = context.actorOf(AppendHandler.props(session), genName("append"))
       handler forward cmd
     case Command.Disconnect(userId) =>
-      session.close().get()
       context.become(disconnected)
-      sender() ! Response.Disconnected(s"Disconnected command for $userId")
+      val responseCallback: Consumer[java.lang.Boolean] = _ => {
+        sender() ! Response.Disconnected(s"Disconnected command for ${userId.value}")
+      }
+      val future = session.close()
+      future.setDoneCallback(responseCallback)
     case message =>
       logger.error(s"connected - got unexpected message $message")
 

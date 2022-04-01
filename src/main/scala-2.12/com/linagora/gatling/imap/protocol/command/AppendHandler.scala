@@ -1,9 +1,9 @@
 package com.linagora.gatling.imap.protocol.command
 
 import java.nio.charset.StandardCharsets
+import java.util.function.Consumer
 import java.util.regex.Pattern
 
-import javax.mail.Flags
 import akka.actor.{ActorRef, Props}
 import com.linagora.gatling.imap.protocol._
 import com.linagora.gatling.imap.protocol.command.AppendHandler.crLfRegex
@@ -11,9 +11,9 @@ import com.yahoo.imapnio.async.client.ImapAsyncSession
 import com.yahoo.imapnio.async.request.AppendCommand
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
 import io.gatling.core.akka.BaseActor
+import javax.mail.Flags
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.collection.immutable.Seq
 
 object AppendHandler {
   def props(session: ImapAsyncSession) = Props(new AppendHandler(session))
@@ -31,24 +31,21 @@ class AppendHandler(session: ImapAsyncSession) extends BaseActor {
       context.become(waitCallback(sender()))
       val nullDate = null
       val crLfContent = crLfRegex.matcher(content).replaceAll("\r\n").getBytes(StandardCharsets.UTF_8)
-      ImapSessionExecutor
-        .listenWithHandler(self, userId, Response.Appended, callback)(logger)(session.execute(new AppendCommand(mailbox, flags.map(toImapFlags).orNull, nullDate, crLfContent)))
-  }
 
-  private def callback(response: Future[ImapAsyncResponse]) = {
-    Try(response) match {
-      case Success(futureResult) =>
-        futureResult.onComplete(future => {
-          logger.debug(s"AppendHandler command completed, success : ${future.isSuccess}")
-          if (!future.isSuccess) {
-            logger.error("AppendHandler command failed", future.toEither.left)
-          }
+      val responseCallback: Consumer[ImapAsyncResponse] = responses => {
+        import collection.JavaConverters._
 
-        })
-      case Failure(e) =>
-        logger.error("ERROR when executing APPEND COMMAND", e)
-        throw e
-    }
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
+
+        self ! Response.Appended(responsesList)}
+      val errorCallback: Consumer[Exception] = e => {
+        logger.error("AppendHandler command failed", e)
+      }
+
+      val future = session.execute(new AppendCommand(mailbox, flags.map(toImapFlags).orNull, nullDate, crLfContent))
+      future.setDoneCallback(responseCallback)
+      future.setExceptionCallback(errorCallback)
   }
 
   private def toImapFlags(flags: Seq[String]): Flags = {
