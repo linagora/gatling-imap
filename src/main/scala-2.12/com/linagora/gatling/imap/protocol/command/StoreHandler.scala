@@ -1,11 +1,13 @@
 package com.linagora.gatling.imap.protocol.command
 
-import javax.mail.Flags
+import java.util.function.Consumer
 
+import javax.mail.Flags
 import akka.actor.{ActorRef, Props}
 import com.linagora.gatling.imap.protocol._
 import com.yahoo.imapnio.async.client.ImapAsyncSession
-import com.yahoo.imapnio.async.request.{FlagsAction, StoreFlagsCommand}
+import com.yahoo.imapnio.async.request.{FlagsAction, StoreFlagsCommand, UidFetchCommand}
+import com.yahoo.imapnio.async.response.ImapAsyncResponse
 import io.gatling.core.akka.BaseActor
 
 import scala.collection.immutable.Seq
@@ -74,11 +76,21 @@ object StoreHandler {
 }
 
 class StoreHandler(session: ImapAsyncSession) extends BaseActor {
-
   override def receive: Receive = {
     case Command.Store(userId, sequence, flags) =>
       context.become(waitCallback(sender()))
-      ImapSessionExecutor.listen(self, userId, Response.Stored)(logger)(session.execute(new StoreFlagsCommand(sequence.asImap, flags.asImap, flags.action, true)))
+
+      val responseCallback: Consumer[ImapAsyncResponse] = responses => {
+        import collection.JavaConverters._
+
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
+        self !  Response.Stored(responsesList)}
+      val errorCallback: Consumer[Exception] = _ => {}
+
+      val future = session.execute(new StoreFlagsCommand(sequence.asImap, flags.asImap, flags.action, true))
+      future.setDoneCallback(responseCallback)
+      future.setExceptionCallback(errorCallback)
   }
 
   def waitCallback(sender: ActorRef): Receive = {
@@ -86,5 +98,4 @@ class StoreHandler(session: ImapAsyncSession) extends BaseActor {
       sender ! msg
       context.stop(self)
   }
-
 }
