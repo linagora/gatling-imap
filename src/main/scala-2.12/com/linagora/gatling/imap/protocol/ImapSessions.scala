@@ -114,7 +114,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case Command.Disconnect(userId) =>
       session.close().get()
       context.become(disconnected)
-      sender() ! Response.Disconnected(new RuntimeException(s"Disconnected command for $userId"))
+      sender() ! Response.Disconnected(s"Disconnected command for $userId")
     case message =>
       logger.error(s"connected - got unexpected message $message")
 

@@ -65,7 +65,7 @@ package object protocol {
 
     case class Appended(responses: ImapResponses) extends Response
 
-    case class Disconnected(cause: Throwable)
+    case class Disconnected(message: String)
 
   }
 
