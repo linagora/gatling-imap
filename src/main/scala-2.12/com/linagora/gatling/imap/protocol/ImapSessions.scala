@@ -10,6 +10,7 @@ import com.yahoo.imapnio.async.client.ImapAsyncSession.DebugMode
 import com.yahoo.imapnio.async.client.{ImapAsyncClient, ImapAsyncSession, ImapAsyncSessionConfig}
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.util.NameGen
+import javax.net.ssl.SSLContext
 
 import scala.util.control.NoStackTrace
 
@@ -49,6 +50,8 @@ private object ImapSession {
   def props(client: => ImapAsyncClient, protocol: ImapProtocol): Props =
     Props(new ImapSession(client, protocol))
 
+  val sslContext = SSLContext.getInstance("TLS")
+  sslContext.init(null, null, null)
 }
 
 private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
@@ -63,7 +66,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
 
     val localAddress = null
     client
-      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession")
+      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession", ImapSession.sslContext)
       .get()
       .getSession
   }
