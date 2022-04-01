@@ -27,8 +27,8 @@ class ImapResponseHandler(imapActionContext: ImapActionContext, requestName: Str
       error.fold(ok(newSession, start))(ko(session, start))
     case e: Exception =>
       ko(session, start)(Failure(e.getMessage))
-    case Disconnected(e) =>
-      ko(session, start)(Failure(e.getMessage))
+    case Disconnected(message) =>
+      ko(session, start)(Failure(message))
     case msg =>
       logger.error(s"received unexpected message $msg")
   }
