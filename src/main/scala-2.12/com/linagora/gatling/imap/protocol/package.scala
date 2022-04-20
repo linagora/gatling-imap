@@ -50,6 +50,8 @@ package object protocol {
 
     case class Noop(userId: UserId) extends Command
 
+    case class Namespace(userId: UserId) extends Command
+
     case class Check(userId: UserId) extends Command
 
     case class Enable(userId: UserId, capability: String) extends Command
@@ -123,6 +125,8 @@ package object protocol {
     case class AclResponse(responses: ImapResponses) extends Response
 
     case class MyRightsResponse(responses: ImapResponses) extends Response
+
+    case class NamespaceResponse(responses: ImapResponses) extends Response
 
     case class Listed(responses: ImapResponses) extends Response
 

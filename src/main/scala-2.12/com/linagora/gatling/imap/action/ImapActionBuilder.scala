@@ -24,6 +24,9 @@ class ImapActionBuilder(requestName: String) {
   def noop(): ImapNoopActionBuilder =
     ImapNoopActionBuilder(requestName, Seq.empty)
 
+  def namespace(): ImapNamespaceActionBuilder =
+    ImapNamespaceActionBuilder(requestName, Seq.empty)
+
   def check(): ImapCheckActionBuilder =
     ImapCheckActionBuilder(requestName, Seq.empty)
 
@@ -123,6 +126,15 @@ case class ImapNoopActionBuilder(requestName: String, private val checks: Seq[Im
     NoopAction.props(ctx, requestName, checks)
 
   override val actionName: String = "noop-action"
+}
+
+case class ImapNamespaceActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapNamespaceActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    NamespaceAction.props(ctx, requestName, checks)
+
+  override val actionName: String = "namespace-action"
 }
 
 case class ImapCheckActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

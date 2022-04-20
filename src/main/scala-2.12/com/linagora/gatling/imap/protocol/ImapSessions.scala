@@ -126,6 +126,9 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.Noop(_) =>
       val handler = context.actorOf(NoopHandler.props(session), genName("noop"))
       handler forward cmd
+    case cmd@Command.Namespace(_) =>
+      val handler = context.actorOf(NamespaceHandler.props(session), genName("namespace"))
+      handler forward cmd
     case cmd@Command.Status(_, _, _) =>
       val handler = context.actorOf(StatusHandler.props(session), genName("status"))
       handler forward cmd
