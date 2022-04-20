@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.scenario.it
 
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.PreDef.imap
-import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapExpungeScenario, ImapSimpleScenario, ImapUIDFetchScenario}
+import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapCapabilityScenario, ImapCheckScenario, ImapCloseScenario, ImapEnableScenario, ImapExpungeScenario, ImapGetAclScenario, ImapGetQuotaRootScenario, ImapIdleScenario, ImapLogoutScenario, ImapLsubScenario, ImapMyRightsScenario, ImapNoopScenario, ImapSimpleScenario, ImapStatusScenario, ImapUIDFetchScenario, ImapUnselectScenario}
 import com.linagora.gatling.imap.{CyrusServer, Fixture, JamesServer, RunningServer}
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.funspec.GatlingFunSpec
@@ -58,4 +58,56 @@ class ImapSimpleScenarioJamesIT extends BaseIt(JamesServer.start()) {
 
 class ImapUIDFetchScenarioJamesIT extends BaseIt(JamesServer.start()) {
   scenario(ImapUIDFetchScenario(_))
+}
+
+class ImapCapabilityScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapCapabilityScenario(_))
+}
+
+class ImapCheckScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapCheckScenario(_))
+}
+
+class ImapCloseScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapCloseScenario(_))
+}
+
+class ImapEnableScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapEnableScenario(_))
+}
+
+class ImapGetAclScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapGetAclScenario(_))
+}
+
+class ImapGetQuotaRootScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapGetQuotaRootScenario(_))
+}
+
+class ImapIdleScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapIdleScenario(_))
+}
+
+class ImapLogoutScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapLogoutScenario(_))
+}
+
+class ImapLsubScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapLsubScenario(_))
+}
+
+class ImapMyRightsScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapMyRightsScenario(_))
+}
+
+class ImapNoopScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapNoopScenario(_))
+}
+
+class ImapStatusScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapStatusScenario(_))
+}
+
+class ImapUnselectScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapUnselectScenario(_))
 }

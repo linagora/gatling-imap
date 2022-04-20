@@ -1,0 +1,46 @@
+package com.linagora.gatling.imap.protocol.command
+
+import java.util.function.Consumer
+
+import akka.actor.{ActorRef, Props}
+import com.linagora.gatling.imap.protocol._
+import com.yahoo.imapnio.async.client.ImapAsyncSession
+import com.yahoo.imapnio.async.request.LogoutCommand
+import com.yahoo.imapnio.async.response.ImapAsyncResponse
+import io.gatling.core.akka.BaseActor
+
+import scala.collection.immutable.Seq
+
+object LogoutHandler {
+  def props(session: ImapAsyncSession) = Props(new LogoutHandler(session))
+}
+
+class LogoutHandler(session: ImapAsyncSession) extends BaseActor {
+  override def receive: Receive = {
+    case Command.Logout(userId) =>
+      logger.trace(s"LogoutHandler for user : ${userId.value}, on actor ${self.path} responding to ${sender.path}")
+      context.become(waitForLoggedIn(sender()))
+
+      val responseCallback: Consumer[ImapAsyncResponse] = responses => {
+        import collection.JavaConverters._
+
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
+        self !  Response.LoggedOut(responsesList)}
+      val errorCallback: Consumer[Exception] = e => {
+        logger.error("LogoutHandler command failed", e)
+      }
+
+      val future = session.execute(new LogoutCommand())
+      future.setDoneCallback(responseCallback)
+      future.setExceptionCallback(errorCallback)
+  }
+
+  def waitForLoggedIn(sender: ActorRef): Receive = {
+    case msg@Response.LoggedOut(_) =>
+      logger.trace(s"LogoutHandler respond to ${sender.path} with $msg")
+      sender ! msg
+      context.stop(self)
+  }
+}
+

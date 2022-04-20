@@ -93,6 +93,45 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.Select(_, _) =>
       val handler = context.actorOf(SelectHandler.props(session), genName("select"))
       handler forward cmd
+    case cmd@Command.Capability(_) =>
+      val handler = context.actorOf(CapabilityHandler.props(session), genName("capability"))
+      handler forward cmd
+    case cmd@Command.Check(_) =>
+      val handler = context.actorOf(CheckHandler.props(session), genName("check"))
+      handler forward cmd
+    case cmd@Command.Close(_) =>
+      val handler = context.actorOf(CloseHandler.props(session), genName("close"))
+      handler forward cmd
+    case cmd@Command.Enable(_, _) =>
+      val handler = context.actorOf(EnableHandler.props(session), genName("enable"))
+      handler forward cmd
+    case cmd@Command.GetAcl(_, _) =>
+      val handler = context.actorOf(GetAclHandler.props(session), genName("getAcl"))
+      handler forward cmd
+    case cmd@Command.GetQuotaRoot(_, _) =>
+      val handler = context.actorOf(GetQuotaRootHandler.props(session), genName("getQuotaRoot"))
+      handler forward cmd
+    case cmd@Command.Idle(_) =>
+      val handler = context.actorOf(IdleHandler.props(session), genName("idle"))
+      handler forward cmd
+    case cmd@Command.Logout(_) =>
+      val handler = context.actorOf(LogoutHandler.props(session), genName("logout"))
+      handler forward cmd
+    case cmd@Command.Lsub(_, _, _) =>
+      val handler = context.actorOf(LsubHandler.props(session), genName("lsub"))
+      handler forward cmd
+    case cmd@Command.MyRights(_, _) =>
+      val handler = context.actorOf(MyRightsHandler.props(session), genName("myrights"))
+      handler forward cmd
+    case cmd@Command.Noop(_) =>
+      val handler = context.actorOf(NoopHandler.props(session), genName("noop"))
+      handler forward cmd
+    case cmd@Command.Status(_, _, _) =>
+      val handler = context.actorOf(StatusHandler.props(session), genName("status"))
+      handler forward cmd
+    case cmd@Command.Unselect(_) =>
+      val handler = context.actorOf(UnselectHandler.props(session), genName("unselect"))
+      handler forward cmd
     case cmd@Command.List(_, _, _) =>
       val handler = context.actorOf(ListHandler.props(session), genName("list"))
       handler forward cmd
