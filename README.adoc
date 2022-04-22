@@ -4,7 +4,31 @@ The goal of this project is to be able to support IMAP protocol into Gatling.
 
 == Supported commands
 
-For now only LOGIN, LIST, SELECT, EXPUNGE, STORE, APPEND, FETCH and UID FETCH commands are supported.
+For now only the following commands are supported:
+
+ - APPEND
+ - CAPABILITY
+ - CHECK
+ - CLOSE
+ - ENABLE
+ - EXPUNGE
+ - FETCH
+ - GETACL (link:https://datatracker.ietf.org/doc/html/rfc4314[RFC-4314])
+ - GETQUOTAROOT (link:https://datatracker.ietf.org/doc/html/rfc2087[RFC-2087])
+ - IDLE (link:https://datatracker.ietf.org/doc/html/rfc2177[RFC-2177])
+ - LIST
+ - LOGIN
+ - LOGOUT
+ - LSUB
+ - MYRIGHTS (link:https://datatracker.ietf.org/doc/html/rfc4314[RFC-4314])
+ - NAMESPACE (link:https://datatracker.ietf.org/doc/html/rfc2342[RFC-2342])
+ - NOOP
+ - SEARCH
+ - SELECT
+ - STATUS
+ - STORE
+ - UID FETCH
+ - UNSELECT (link:https://datatracker.ietf.org/doc/html/rfc3691[RFC-3691])
 
 == Supported checks
 
