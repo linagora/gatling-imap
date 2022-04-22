@@ -3,6 +3,7 @@ package com.linagora.gatling.imap
 import java.util.Calendar
 
 import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges, StoreFlags}
+import javax.mail.search.SearchTerm
 
 import scala.collection.immutable.Seq
 
@@ -78,6 +79,8 @@ package object protocol {
 
     case class UIDFetch(userId: UserId, sequence: MessageRanges, attributes: FetchAttributes) extends Command
 
+    case class Search(userId: UserId, sequence: MessageRanges, searchTerm: SearchTerm) extends Command
+
     case class Expunge(userId: UserId) extends Command
 
     case class Append(userId: UserId, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
@@ -99,6 +102,8 @@ package object protocol {
     case class Connected(responses: ImapResponses) extends Response
 
     case class LoggedIn(responses: ImapResponses) extends Response
+
+    case class SearchResult(responses: ImapResponses) extends Response
 
     case class Closed(responses: ImapResponses) extends Response
 
