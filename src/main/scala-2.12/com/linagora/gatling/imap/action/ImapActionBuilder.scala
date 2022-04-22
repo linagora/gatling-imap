@@ -11,12 +11,16 @@ import io.gatling.core.action.{Action, ExitableActorDelegatingAction}
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
+import javax.mail.search.SearchTerm
 
 import scala.collection.immutable.Seq
 
 class ImapActionBuilder(requestName: String) {
   def login(user: Expression[String], password: Expression[String]): ImapLoginActionBuilder =
     ImapLoginActionBuilder(requestName, user, password, Seq.empty)
+
+  def search(sequence: Expression[MessageRanges], term: Expression[SearchTerm]): ImapSearchActionBuilder =
+    ImapSearchActionBuilder(requestName, sequence, term, Seq.empty)
 
   def capability(): ImapCapabilityActionBuilder =
     ImapCapabilityActionBuilder(requestName, Seq.empty)
@@ -108,6 +112,15 @@ case class ImapLoginActionBuilder(requestName: String, username: Expression[Stri
     LoginAction.props(ctx, requestName, checks, username, password)
 
   override val actionName: String = "login-action"
+}
+
+case class ImapSearchActionBuilder(requestName: String, sequence: Expression[MessageRanges], term: Expression[SearchTerm], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapSearchActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    SearchAction.props(ctx, requestName, checks, sequence, term)
+
+  override val actionName: String = "search-action"
 }
 
 case class ImapCapabilityActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

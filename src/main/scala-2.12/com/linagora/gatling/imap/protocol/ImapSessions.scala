@@ -90,6 +90,9 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.Login(_, _, _) =>
       val handler = context.actorOf(LoginHandler.props(session), genName("login"))
       handler forward cmd
+    case cmd@Command.Search(_, _, _) =>
+      val handler = context.actorOf(SearchHandler.props(session), genName("search"))
+      handler forward cmd
     case cmd@Command.Select(_, _) =>
       val handler = context.actorOf(SelectHandler.props(session), genName("select"))
       handler forward cmd
