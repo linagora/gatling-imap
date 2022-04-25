@@ -39,6 +39,7 @@ For now only the following commands are supported:
  - MOVE (link:https://datatracker.ietf.org/doc/html/rfc6851[RFC-6851])
  - COPY
  - GETQUOTA (link:https://datatracker.ietf.org/doc/html/rfc2087[RFC-2087])
+ - SETQUOTA (link:https://datatracker.ietf.org/doc/html/rfc2087[RFC-2087])
  - UID COPY
  - UID EXPUNGE
 
