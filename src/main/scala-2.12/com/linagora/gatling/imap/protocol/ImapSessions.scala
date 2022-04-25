@@ -150,6 +150,9 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.RenameFolder(_, _, _) =>
       val handler = context.actorOf(RenameFolderHandler.props(session), genName("renameFolder"))
       handler forward cmd
+    case cmd@Command.ExamineFolder(_, _) =>
+      val handler = context.actorOf(ExamineFolderHandler.props(session), genName("examineFolder"))
+      handler forward cmd
     case cmd@Command.Status(_, _, _) =>
       val handler = context.actorOf(StatusHandler.props(session), genName("status"))
       handler forward cmd
