@@ -37,6 +37,9 @@ class ImapActionBuilder(requestName: String) {
   def subscribe(mailbox: Expression[String]): ImapSubscribeActionBuilder =
     ImapSubscribeActionBuilder(requestName, mailbox, Seq.empty)
 
+  def unsubscribe(mailbox: Expression[String]): ImapUnsubscribeActionBuilder =
+    ImapUnsubscribeActionBuilder(requestName, mailbox, Seq.empty)
+
   def check(): ImapCheckActionBuilder =
     ImapCheckActionBuilder(requestName, Seq.empty)
 
@@ -172,6 +175,15 @@ case class ImapSubscribeActionBuilder(requestName: String, mailbox: Expression[S
     SubscribeAction.props(ctx, requestName, checks, mailbox)
 
   override val actionName: String = "subscribe-action"
+}
+
+case class ImapUnsubscribeActionBuilder(requestName: String, mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapUnsubscribeActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    UnsubscribeAction.props(ctx, requestName, checks, mailbox)
+
+  override val actionName: String = "unsubscribe-action"
 }
 
 case class ImapCheckActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
