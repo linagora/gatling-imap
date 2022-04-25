@@ -33,6 +33,7 @@ For now only the following commands are supported:
  - SUBSCRIBE
  - UNSUBSCRIBE
  - CREATE FOLDER
+ - DELETE FOLDER
 
 == Supported checks
 
