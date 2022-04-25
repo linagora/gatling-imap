@@ -36,6 +36,7 @@ For now only the following commands are supported:
  - DELETE FOLDER
  - RENAME FOLDER
  - EXAMINE FOLDER
+ - MOVE (link:https://datatracker.ietf.org/doc/html/rfc6851[RFC-6851])
 
 == Supported checks
 

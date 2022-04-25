@@ -25,6 +25,9 @@ class ImapActionBuilder(requestName: String) {
   def uidSearch(sequence: Expression[MessageRanges], term: Expression[SearchTerm]): ImapUIDSearchActionBuilder =
     ImapUIDSearchActionBuilder(requestName, sequence, term, Seq.empty)
 
+  def moveMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapMoveActionBuilder =
+    ImapMoveActionBuilder(requestName, sequence, mailbox, Seq.empty)
+
   def capability(): ImapCapabilityActionBuilder =
     ImapCapabilityActionBuilder(requestName, Seq.empty)
 
@@ -151,6 +154,15 @@ case class ImapUIDSearchActionBuilder(requestName: String, sequence: Expression[
     UIDSearchAction.props(ctx, requestName, checks, sequence, term)
 
   override val actionName: String = "uid-search-action"
+}
+
+case class ImapMoveActionBuilder(requestName: String, sequence: Expression[MessageRanges], mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapMoveActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    MoveAction.props(ctx, requestName, checks, sequence, mailbox)
+
+  override val actionName: String = "move-action"
 }
 
 case class ImapCapabilityActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
