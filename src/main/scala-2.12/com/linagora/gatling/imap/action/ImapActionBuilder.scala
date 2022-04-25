@@ -79,6 +79,9 @@ class ImapActionBuilder(requestName: String) {
   def getQuotaRoot(mailbox: Expression[String]): ImapGetQuotaRootActionBuilder =
     ImapGetQuotaRootActionBuilder(requestName, mailbox, Seq.empty)
 
+  def getQuota(quotaRoot: Expression[String]): ImapGetQuotaActionBuilder =
+    ImapGetQuotaActionBuilder(requestName, quotaRoot, Seq.empty)
+
   def getAcl(mailbox: Expression[String]): ImapGetAclActionBuilder =
     ImapGetAclActionBuilder(requestName, mailbox, Seq.empty)
 
@@ -337,6 +340,15 @@ case class ImapGetQuotaRootActionBuilder(requestName: String, capability: Expres
     GetQuotaRootAction.props(ctx, requestName, checks, capability)
 
   override val actionName: String = "get-quota-root-action"
+}
+
+case class ImapGetQuotaActionBuilder(requestName: String, capability: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapGetQuotaActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    GetQuotaAction.props(ctx, requestName, checks, capability)
+
+  override val actionName: String = "get-quota-action"
 }
 
 case class ImapGetAclActionBuilder(requestName: String, capability: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
