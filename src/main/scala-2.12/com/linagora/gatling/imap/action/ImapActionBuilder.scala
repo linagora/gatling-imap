@@ -40,6 +40,9 @@ class ImapActionBuilder(requestName: String) {
   def unsubscribe(mailbox: Expression[String]): ImapUnsubscribeActionBuilder =
     ImapUnsubscribeActionBuilder(requestName, mailbox, Seq.empty)
 
+  def createFolder(mailbox: Expression[String]): ImapCreateFolderActionBuilder =
+    ImapCreateFolderActionBuilder(requestName, mailbox, Seq.empty)
+
   def check(): ImapCheckActionBuilder =
     ImapCheckActionBuilder(requestName, Seq.empty)
 
@@ -184,6 +187,15 @@ case class ImapUnsubscribeActionBuilder(requestName: String, mailbox: Expression
     UnsubscribeAction.props(ctx, requestName, checks, mailbox)
 
   override val actionName: String = "unsubscribe-action"
+}
+
+case class ImapCreateFolderActionBuilder(requestName: String, mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapCreateFolderActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    CreateFolderAction.props(ctx, requestName, checks, mailbox)
+
+  override val actionName: String = "createFolder-action"
 }
 
 case class ImapCheckActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
