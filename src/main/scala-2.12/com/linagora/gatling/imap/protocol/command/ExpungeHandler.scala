@@ -26,8 +26,15 @@ class ExpungeHandler(session: ImapAsyncSession) extends BaseActor {
 
         val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
         logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
-        self ! Response.Expunged(responsesList)}
-      val errorCallback: Consumer[Exception] = _ => {}
+        self ! Response.Expunged(responsesList)
+      }
+
+      val errorCallback: Consumer[Exception] = e => {
+        logger.trace(s"${getClass.getSimpleName} command failed", e)
+        logger.error(s"${getClass.getSimpleName} command failed")
+        sender ! e
+        context.stop(self)
+      }
 
       val future = session.execute(new ExpungeCommand())
       future.setDoneCallback(responseCallback)

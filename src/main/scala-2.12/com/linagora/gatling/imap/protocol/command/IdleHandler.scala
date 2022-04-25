@@ -31,8 +31,12 @@ class IdleHandler(session: ImapAsyncSession) extends BaseActor {
         logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
         self !  Response.Idled(responsesList)
       }
+
       val errorCallback: Consumer[Exception] = e => {
-        logger.error("IdleHandler command failed", e)
+        logger.trace(s"${getClass.getSimpleName} command failed", e)
+        logger.error(s"${getClass.getSimpleName} command failed")
+        sender ! e
+        context.stop(self)
       }
 
       val future = session.execute(idleCommand)
