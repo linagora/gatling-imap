@@ -63,6 +63,8 @@ package object protocol {
 
     case class RenameFolder(userId: UserId, oldFolder: String, newFolder: String) extends Command
 
+    case class ExamineFolder(userId: UserId, mailbox: String) extends Command
+
     case class Check(userId: UserId) extends Command
 
     case class Enable(userId: UserId, capability: String) extends Command
@@ -156,6 +158,8 @@ package object protocol {
     case class DeleteFolderResponse(responses: ImapResponses) extends Response
 
     case class RenameFolderResponse(responses: ImapResponses) extends Response
+
+    case class ExamineFolderResponse(responses: ImapResponses) extends Response
 
     case class Listed(responses: ImapResponses) extends Response
 

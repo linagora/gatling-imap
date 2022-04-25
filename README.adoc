@@ -35,6 +35,7 @@ For now only the following commands are supported:
  - CREATE FOLDER
  - DELETE FOLDER
  - RENAME FOLDER
+ - EXAMINE FOLDER
 
 == Supported checks
 
