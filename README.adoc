@@ -30,6 +30,7 @@ For now only the following commands are supported:
  - UID FETCH
  - UID SEARCH
  - UNSELECT (link:https://datatracker.ietf.org/doc/html/rfc3691[RFC-3691])
+ - SUBSCRIBE
 
 == Supported checks
 

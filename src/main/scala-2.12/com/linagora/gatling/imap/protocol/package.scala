@@ -53,6 +53,8 @@ package object protocol {
 
     case class Namespace(userId: UserId) extends Command
 
+    case class Subscribe(userId: UserId, mailbox: String) extends Command
+
     case class Check(userId: UserId) extends Command
 
     case class Enable(userId: UserId, capability: String) extends Command
@@ -136,6 +138,8 @@ package object protocol {
     case class MyRightsResponse(responses: ImapResponses) extends Response
 
     case class NamespaceResponse(responses: ImapResponses) extends Response
+
+    case class SubscribeResponse(responses: ImapResponses) extends Response
 
     case class Listed(responses: ImapResponses) extends Response
 
