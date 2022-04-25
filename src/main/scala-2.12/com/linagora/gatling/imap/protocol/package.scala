@@ -101,6 +101,8 @@ package object protocol {
 
     case class Copy(userId: UserId, sequence: MessageRanges, mailbox: String) extends Command
 
+    case class UidCopy(userId: UserId, sequence: MessageRanges, mailbox: String) extends Command
+
     case class Expunge(userId: UserId) extends Command
 
     case class Append(userId: UserId, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
@@ -130,6 +132,8 @@ package object protocol {
     case class MoveResult(responses: ImapResponses) extends Response
 
     case class CopyResult(responses: ImapResponses) extends Response
+
+    case class UidCopyResult(responses: ImapResponses) extends Response
 
     case class Closed(responses: ImapResponses) extends Response
 
