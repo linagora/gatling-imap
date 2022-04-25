@@ -34,6 +34,7 @@ For now only the following commands are supported:
  - UNSUBSCRIBE
  - CREATE FOLDER
  - DELETE FOLDER
+ - RENAME FOLDER
 
 == Supported checks
 
