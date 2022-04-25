@@ -12,5 +12,6 @@ object ImapGetQuotaScenario {
       .exec(imap("Connect").connect()).exitHereIfFailed
       .exec(imap("login").login("${username}", "${password}").check(ok))
       .exec(imap("select").select("INBOX").check(ok))
+      .exec(imap("setQuota").setQuota("INBOX (STORAGE 512)").check(no))
       .exec(imap("getQuota").getQuota("INBOX").check(bad))
 }
