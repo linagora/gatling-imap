@@ -9,6 +9,8 @@ import com.linagora.gatling.imap.protocol.command.MessageRanges
 import io.gatling.core.Predef._
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
+import javax.mail.Flags
+import javax.mail.search.FlagTerm
 
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
@@ -36,6 +38,7 @@ object ImapSearchScenario {
       .exec(imap("select").select("INBOX").check(ok))
       .exec(populateInbox)
       .pause(1 second)
-      .exec(imap("search").search(MessageRanges(Range(1, numberOfMailInInbox)), null))
+      .exec(imap("search").search(MessageRanges(Range(1, numberOfMailInInbox)), new FlagTerm(new Flags(Flags.Flag.SEEN), true)).check(ok))
+      .exec(imap("search").uidSearch(MessageRanges(Range(1, numberOfMailInInbox)), new FlagTerm(new Flags(Flags.Flag.SEEN), true)).check(ok))
 
 }

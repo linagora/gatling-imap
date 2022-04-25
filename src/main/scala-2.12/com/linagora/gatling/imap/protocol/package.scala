@@ -81,6 +81,8 @@ package object protocol {
 
     case class Search(userId: UserId, sequence: MessageRanges, searchTerm: SearchTerm) extends Command
 
+    case class UIDSearch(userId: UserId, sequence: MessageRanges, searchTerm: SearchTerm) extends Command
+
     case class Expunge(userId: UserId) extends Command
 
     case class Append(userId: UserId, mailbox: String, flags: Option[Seq[String]], date: Option[Calendar], content: String) extends Command
@@ -104,6 +106,8 @@ package object protocol {
     case class LoggedIn(responses: ImapResponses) extends Response
 
     case class SearchResult(responses: ImapResponses) extends Response
+
+    case class UIDSearchResult(responses: ImapResponses) extends Response
 
     case class Closed(responses: ImapResponses) extends Response
 
