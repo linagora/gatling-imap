@@ -34,6 +34,9 @@ class ImapActionBuilder(requestName: String) {
   def namespace(): ImapNamespaceActionBuilder =
     ImapNamespaceActionBuilder(requestName, Seq.empty)
 
+  def subscribe(mailbox: Expression[String]): ImapSubscribeActionBuilder =
+    ImapSubscribeActionBuilder(requestName, mailbox, Seq.empty)
+
   def check(): ImapCheckActionBuilder =
     ImapCheckActionBuilder(requestName, Seq.empty)
 
@@ -160,6 +163,15 @@ case class ImapNamespaceActionBuilder(requestName: String, private val checks: S
     NamespaceAction.props(ctx, requestName, checks)
 
   override val actionName: String = "namespace-action"
+}
+
+case class ImapSubscribeActionBuilder(requestName: String, mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapSubscribeActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    SubscribeAction.props(ctx, requestName, checks, mailbox)
+
+  override val actionName: String = "subscribe-action"
 }
 
 case class ImapCheckActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
