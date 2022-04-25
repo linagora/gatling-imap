@@ -28,6 +28,9 @@ class ImapActionBuilder(requestName: String) {
   def moveMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapMoveActionBuilder =
     ImapMoveActionBuilder(requestName, sequence, mailbox, Seq.empty)
 
+  def copyMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapCopyActionBuilder =
+    ImapCopyActionBuilder(requestName, sequence, mailbox, Seq.empty)
+
   def capability(): ImapCapabilityActionBuilder =
     ImapCapabilityActionBuilder(requestName, Seq.empty)
 
@@ -163,6 +166,15 @@ case class ImapMoveActionBuilder(requestName: String, sequence: Expression[Messa
     MoveAction.props(ctx, requestName, checks, sequence, mailbox)
 
   override val actionName: String = "move-action"
+}
+
+case class ImapCopyActionBuilder(requestName: String, sequence: Expression[MessageRanges], mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapCopyActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    CopyAction.props(ctx, requestName, checks, sequence, mailbox)
+
+  override val actionName: String = "copy-action"
 }
 
 case class ImapCapabilityActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
