@@ -46,6 +46,9 @@ class ImapActionBuilder(requestName: String) {
   def deleteFolder(mailbox: Expression[String]): ImapDeleteFolderActionBuilder =
     ImapDeleteFolderActionBuilder(requestName, mailbox, Seq.empty)
 
+  def renameFolder(oldFolder: Expression[String], newFolder: Expression[String]): ImapRenameFolderActionBuilder =
+    ImapRenameFolderActionBuilder(requestName, oldFolder, newFolder, Seq.empty)
+
   def check(): ImapCheckActionBuilder =
     ImapCheckActionBuilder(requestName, Seq.empty)
 
@@ -208,6 +211,15 @@ case class ImapDeleteFolderActionBuilder(requestName: String, mailbox: Expressio
     DeleteFolderAction.props(ctx, requestName, checks, mailbox)
 
   override val actionName: String = "deleteFolder-action"
+}
+
+case class ImapRenameFolderActionBuilder(requestName: String, oldFolder: Expression[String], newFolder: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapRenameFolderActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    RenameFolderAction.props(ctx, requestName, checks, oldFolder, newFolder)
+
+  override val actionName: String = "renameFolder-action"
 }
 
 case class ImapCheckActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

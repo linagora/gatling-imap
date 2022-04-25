@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.scenario.it
 
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.PreDef.imap
-import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapCapabilityScenario, ImapCheckScenario, ImapCloseScenario, ImapCreateFolderScenario, ImapDeleteFolderScenario, ImapEnableScenario, ImapExpungeScenario, ImapGetAclScenario, ImapGetQuotaRootScenario, ImapIdleScenario, ImapLogoutScenario, ImapLsubScenario, ImapMyRightsScenario, ImapNamespaceScenario, ImapNoopScenario, ImapSearchScenario, ImapSimpleScenario, ImapStatusScenario, ImapSubscribeScenario, ImapUIDFetchScenario, ImapUnselectScenario, ImapUnsubscribeScenario}
+import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapCapabilityScenario, ImapCheckScenario, ImapCloseScenario, ImapCreateFolderScenario, ImapDeleteFolderScenario, ImapEnableScenario, ImapExpungeScenario, ImapGetAclScenario, ImapGetQuotaRootScenario, ImapIdleScenario, ImapLogoutScenario, ImapLsubScenario, ImapMyRightsScenario, ImapNamespaceScenario, ImapNoopScenario, ImapRenameFolderScenario, ImapSearchScenario, ImapSimpleScenario, ImapStatusScenario, ImapSubscribeScenario, ImapUIDFetchScenario, ImapUnselectScenario, ImapUnsubscribeScenario}
 import com.linagora.gatling.imap.{CyrusServer, Fixture, JamesServer, RunningServer}
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.funspec.GatlingFunSpec
@@ -118,6 +118,10 @@ class ImapCreateFolderScenarioJamesIT extends BaseIt(JamesServer.start()) {
 
 class ImapDeleteFolderScenarioJamesIT extends BaseIt(JamesServer.start()) {
   scenario(ImapDeleteFolderScenario(_))
+}
+
+class ImapRenameFolderScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(ImapRenameFolderScenario(_))
 }
 
 class ImapNoopScenarioJamesIT extends BaseIt(JamesServer.start()) {
