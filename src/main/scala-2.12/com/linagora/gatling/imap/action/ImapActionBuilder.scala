@@ -34,6 +34,9 @@ class ImapActionBuilder(requestName: String) {
   def uidCopyMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapUidCopyActionBuilder =
     ImapUidCopyActionBuilder(requestName, sequence, mailbox, Seq.empty)
 
+  def uidExpunge(sequence: Expression[MessageRanges]): ImapUidExpungeActionBuilder =
+    ImapUidExpungeActionBuilder(requestName, sequence, Seq.empty)
+
   def capability(): ImapCapabilityActionBuilder =
     ImapCapabilityActionBuilder(requestName, Seq.empty)
 
@@ -190,6 +193,15 @@ case class ImapUidCopyActionBuilder(requestName: String, sequence: Expression[Me
     UidCopyAction.props(ctx, requestName, checks, sequence, mailbox)
 
   override val actionName: String = "uid-copy-action"
+}
+
+case class ImapUidExpungeActionBuilder(requestName: String, sequence: Expression[MessageRanges], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapUidExpungeActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    UidExpungeAction.props(ctx, requestName, checks, sequence)
+
+  override val actionName: String = "uid-expunge-action"
 }
 
 case class ImapCapabilityActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
