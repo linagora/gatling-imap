@@ -34,6 +34,9 @@ class ImapActionBuilder(requestName: String) {
   def uidCopyMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapUidCopyActionBuilder =
     ImapUidCopyActionBuilder(requestName, sequence, mailbox, Seq.empty)
 
+  def uidMoveMessage(sequence: Expression[MessageRanges], mailbox: Expression[String]): ImapUidMoveActionBuilder =
+    ImapUidMoveActionBuilder(requestName, sequence, mailbox, Seq.empty)
+
   def uidExpunge(sequence: Expression[MessageRanges]): ImapUidExpungeActionBuilder =
     ImapUidExpungeActionBuilder(requestName, sequence, Seq.empty)
 
@@ -196,6 +199,15 @@ case class ImapUidCopyActionBuilder(requestName: String, sequence: Expression[Me
     UidCopyAction.props(ctx, requestName, checks, sequence, mailbox)
 
   override val actionName: String = "uid-copy-action"
+}
+
+case class ImapUidMoveActionBuilder(requestName: String, sequence: Expression[MessageRanges], mailbox: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapUidMoveActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    UidMoveAction.props(ctx, requestName, checks, sequence, mailbox)
+
+  override val actionName: String = "uid-move-action"
 }
 
 case class ImapUidExpungeActionBuilder(requestName: String, sequence: Expression[MessageRanges], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
