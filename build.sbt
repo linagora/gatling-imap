@@ -16,7 +16,7 @@ libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % g
 libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "4.3.8"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test,it"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "it"
-libraryDependencies += "org.testcontainers" % "testcontainers" % "1.11.0" % "it"
+libraryDependencies += "org.testcontainers" % "testcontainers" % "1.17.1" % "it"
 libraryDependencies += "com.typesafe.play" %% "play-ahc-ws-standalone" % playWsVersion % "it"
 
 
