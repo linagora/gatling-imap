@@ -94,6 +94,9 @@ class ImapActionBuilder(requestName: String) {
   def setQuota(quotaRootAndResourceLimits: Expression[String]): ImapSetQuotaActionBuilder =
     ImapSetQuotaActionBuilder(requestName, quotaRootAndResourceLimits, Seq.empty)
 
+  def compress(): ImapCompressActionBuilder =
+    ImapCompressActionBuilder(requestName, Seq.empty)
+
   def getAcl(mailbox: Expression[String]): ImapGetAclActionBuilder =
     ImapGetAclActionBuilder(requestName, mailbox, Seq.empty)
 
@@ -400,6 +403,15 @@ case class ImapSetQuotaActionBuilder(requestName: String, capability: Expression
     SetQuotaAction.props(ctx, requestName, checks, capability)
 
   override val actionName: String = "set-quota-action"
+}
+
+case class ImapCompressActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapCompressActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    CompressAction.props(ctx, requestName, checks)
+
+  override val actionName: String = "compress-action"
 }
 
 case class ImapGetAclActionBuilder(requestName: String, capability: Expression[String], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {

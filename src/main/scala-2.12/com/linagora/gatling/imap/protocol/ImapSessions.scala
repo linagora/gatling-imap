@@ -123,6 +123,9 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.SetQuota(_, _) =>
       val handler = context.actorOf(SetQuotaHandler.props(session), genName("setQuota"))
       handler forward cmd
+    case cmd@Command.Compress(_) =>
+      val handler = context.actorOf(CompressHandler.props(session), genName("compress"))
+      handler forward cmd
     case cmd@Command.Idle(_) =>
       val handler = context.actorOf(IdleHandler.props(session), genName("idle"))
       handler forward cmd

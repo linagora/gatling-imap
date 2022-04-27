@@ -44,6 +44,7 @@ For now only the following commands are supported:
  - UID EXPUNGE
  - UID MOVE
  - UID STORE
+ - COMPRESS (link:https://datatracker.ietf.org/doc/html/rfc4978[RFC-4978])
 
 == Supported checks
 
