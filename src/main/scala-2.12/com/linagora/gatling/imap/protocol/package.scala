@@ -83,6 +83,8 @@ package object protocol {
 
     case class SetQuota(userId: UserId, quotaRootAndResourcesLimits: String) extends Command
 
+    case class Compress(userId: UserId) extends Command
+
     case class GetAcl(userId: UserId, mailbox: String) extends Command
 
     case class MyRights(userId: UserId, mailbox: String) extends Command
@@ -172,6 +174,8 @@ package object protocol {
     case class QuotaResponse(responses: ImapResponses) extends Response
 
     case class SetQuotaResponse(responses: ImapResponses) extends Response
+
+    case class CompressResponse(responses: ImapResponses) extends Response
 
     case class AclResponse(responses: ImapResponses) extends Response
 
