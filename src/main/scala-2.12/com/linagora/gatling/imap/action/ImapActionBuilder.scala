@@ -118,6 +118,9 @@ class ImapActionBuilder(requestName: String) {
   def store(sequence: Expression[MessageRanges], flags: Expression[StoreFlags]): ImapStoreActionBuilder =
     ImapStoreActionBuilder(requestName, sequence, flags, Seq.empty)
 
+  def uidStore(sequence: Expression[MessageRanges], flags: Expression[StoreFlags]): ImapUidStoreActionBuilder =
+    ImapUidStoreActionBuilder(requestName, sequence, flags, Seq.empty)
+
   def status(mailbox: Expression[String], items: Expression[StatusItems]): ImapStatusActionBuilder =
     ImapStatusActionBuilder(requestName, mailbox, items, Seq.empty)
 
@@ -460,6 +463,15 @@ case class ImapStoreActionBuilder(requestName: String, sequence: Expression[Mess
     StoreAction.props(ctx, requestName, checks, sequence, flags)
 
   override val actionName: String = "store-action"
+}
+
+case class ImapUidStoreActionBuilder(requestName: String, sequence: Expression[MessageRanges], flags: Expression[StoreFlags], private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
+  def check(checks: ImapCheck*): ImapUidStoreActionBuilder = copy(checks = this.checks ++ checks)
+
+  override def props(ctx: ImapActionContext): Props =
+    UidStoreAction.props(ctx, requestName, checks, sequence, flags)
+
+  override val actionName: String = "uid-store-action"
 }
 
 case class ImapExpungeActionBuilder(requestName: String, private val checks: Seq[ImapCheck]) extends ImapCommandActionBuilder {
