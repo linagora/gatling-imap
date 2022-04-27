@@ -118,6 +118,8 @@ package object protocol {
     case class Status(userId: UserId, mailbox: String, items: StatusItems) extends Command
 
     case class Store(userId: UserId, sequence: MessageRanges, flags: StoreFlags) extends Command
+
+    case class UidStore(userId: UserId, sequence: MessageRanges, flags: StoreFlags) extends Command
   }
 
   sealed trait Response {
@@ -198,6 +200,8 @@ package object protocol {
     case class Expunged(responses: ImapResponses) extends Response
 
     case class Stored(responses: ImapResponses) extends Response
+
+    case class UidStoreResult(responses: ImapResponses) extends Response
 
     case class Appended(responses: ImapResponses) extends Response
 
