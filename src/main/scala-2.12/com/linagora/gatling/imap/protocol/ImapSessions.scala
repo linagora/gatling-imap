@@ -168,6 +168,9 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case cmd@Command.UidCopy(_, _, _) =>
       val handler = context.actorOf(UidCopyHandler.props(session), genName("uidCopy"))
       handler forward cmd
+    case cmd@Command.UidMove(_, _, _) =>
+      val handler = context.actorOf(UidMoveHandler.props(session), genName("uidMove"))
+      handler forward cmd
     case cmd@Command.UidExpunge(_, _) =>
       val handler = context.actorOf(UidExpungeHandler.props(session), genName("uidExpunge"))
       handler forward cmd

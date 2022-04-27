@@ -42,6 +42,7 @@ For now only the following commands are supported:
  - SETQUOTA (link:https://datatracker.ietf.org/doc/html/rfc2087[RFC-2087])
  - UID COPY
  - UID EXPUNGE
+ - UID MOVE
 
 == Supported checks
 
