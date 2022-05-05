@@ -34,13 +34,13 @@ class ImapResponseHandler(imapActionContext: ImapActionContext, requestName: Str
   }
 
   def ko(session: Session, start: Long)(failure: Failure) = {
-    statsEngine.logResponse(session, requestName, start, imapActionContext.clock.nowMillis, KO, None, Some(failure.message))
+    statsEngine.logResponse(session.scenario, session.groups, requestName, start, imapActionContext.clock.nowMillis, KO, None, Some(failure.message))
     next ! session.markAsFailed
     context.stop(self)
   }
 
   def ok(session: Session, start: Long) = {
-    statsEngine.logResponse(session, requestName, start, imapActionContext.clock.nowMillis, OK, None, None)
+    statsEngine.logResponse(session.scenario, session.groups, requestName, start, imapActionContext.clock.nowMillis, OK, None, None)
     next ! session
     context.stop(self)
   }

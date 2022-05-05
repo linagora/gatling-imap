@@ -6,7 +6,6 @@ import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
 import com.linagora.gatling.imap.protocol.{Command, UserId}
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.ValidatedActionActor
 import io.gatling.core.session._
 
 import scala.collection.immutable.Seq
