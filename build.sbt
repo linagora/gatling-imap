@@ -4,7 +4,7 @@ version := "1.0-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
-val gatlingVersion = "3.0.3"
+val gatlingVersion = "3.4.2"
 val playWsVersion = "2.0.1"
 
 scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps")
@@ -15,7 +15,9 @@ libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion 
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-http")
 libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "4.3.8"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test,it"
-libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % "it"
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.6.8" % "it"
+libraryDependencies += "com.typesafe.akka" %% "akka-protobuf" % "2.6.8" % "it"
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.8" % "it"
 libraryDependencies += "org.testcontainers" % "testcontainers" % "1.17.1" % "it"
 libraryDependencies += "com.typesafe.play" %% "play-ahc-ws-standalone" % playWsVersion % "it"
 

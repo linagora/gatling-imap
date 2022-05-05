@@ -1,18 +1,17 @@
 package com.linagora.gatling.imap.action
 
 import java.util.Calendar
-
 import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
 import com.linagora.gatling.imap.protocol.command.{FetchAttributes, MessageRanges, StoreFlags}
 import com.linagora.gatling.imap.protocol.{ImapComponents, ImapProtocol, StatusItems}
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.action.{Action, ExitableActorDelegatingAction}
+import io.gatling.core.action.Action
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
-import javax.mail.search.SearchTerm
 
+import javax.mail.search.SearchTerm
 import scala.collection.immutable.Seq
 
 class ImapActionBuilder(requestName: String) {

@@ -2,7 +2,6 @@ package com.linagora.gatling.imap.action
 
 import akka.actor.Props
 import com.linagora.gatling.imap.protocol.{Command, UserId}
-import io.gatling.core.action.ActionActor
 import io.gatling.core.session.Session
 
 object ConnectAction {
