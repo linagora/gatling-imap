@@ -1,6 +1,6 @@
 package com.linagora.gatling.imap.scenario.it
 
-import com.linagora.gatling.imap.Fixture.bart
+import com.linagora.gatling.imap.Fixture.{bart, cyrusAdmin}
 import com.linagora.gatling.imap.PreDef.imap
 import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapCapabilityScenario, ImapCheckScenario, ImapCloseScenario, ImapCompressScenario, ImapCopyMessageScenario, ImapCreateFolderScenario, ImapDeleteFolderScenario, ImapEnableScenario, ImapExamineFolderScenario, ImapExpungeScenario, ImapGetAclScenario, ImapGetQuotaRootScenario, ImapGetQuotaScenario, ImapIdleScenario, ImapLogoutScenario, ImapLsubScenario, ImapMoveMessageScenario, ImapMyRightsScenario, ImapNamespaceScenario, ImapNoopScenario, ImapRenameFolderScenario, ImapSearchScenario, ImapSimpleScenario, ImapStatusScenario, ImapSubscribeScenario, ImapUIDFetchScenario, ImapUidCopyMessageScenario, ImapUidExpungeMessageScenario, ImapUidMoveMessageScenario, ImapUidStoreScenario, ImapUnselectScenario, ImapUnsubscribeScenario, MassiveOperationScenario}
 import com.linagora.gatling.imap.{CyrusServer, Fixture, JamesServer, RunningServer}
@@ -15,14 +15,25 @@ abstract class BaseIt(server: RunningServer) extends GatlingFunSpec {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
   lazy val protocolConf: Protocol = imap.host("localhost").port(server.mappedImapPort()).build()
-  before(server.addDomain(Fixture.simpson))
-  before(server.addUser(bart))
+  if (server.isInstanceOf[JamesServer.RunningJamesServer]) {
+    before(server.addDomain(Fixture.simpson))
+    before(server.addUser(bart))
+  } else {
+    before(server.addUser(cyrusAdmin))
+  }
+
   after(server.stop())
 
   protected def scenario(scenario: FeederBuilder => ScenarioBuilder) = {
-    scenario(Fixture.feederBuilder(bart)).actionBuilders.reverse.foreach(
-      spec _
-    )
+    if (server.isInstanceOf[JamesServer.RunningJamesServer]) {
+      scenario(Fixture.feederBuilder(bart)).actionBuilders.reverse.foreach(
+        spec _
+      )
+    } else {
+      scenario(Fixture.feederBuilder(cyrusAdmin)).actionBuilders.reverse.foreach(
+        spec _
+      )
+    }
   }
 }
 

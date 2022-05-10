@@ -2,7 +2,7 @@ package com.linagora.gatling.imap.scenario
 
 import java.util.Calendar
 
-import com.linagora.gatling.imap.PreDef.{imap, ok}
+import com.linagora.gatling.imap.PreDef.{imap, ok, debug}
 import com.linagora.gatling.imap.protocol.command.MessageRange.From
 import com.linagora.gatling.imap.protocol.command.{MessageRanges, Silent, StoreFlags}
 import io.gatling.core.Predef._
@@ -16,11 +16,11 @@ object MassiveOperationScenario {
   private val gracePeriod = 5 milliseconds
   private val numberOfMailInInbox = 20000
   private val numberOfSubMailboxes = 1000
-  private val mailboxAName = "MailboxA"
-  private val mailboxBName = "MailboxB"
-  private val mailboxCName = "MailboxC"
-  private val mailboxDName = "MailboxD"
-  private val mailboxDNewName = "Dbis"
+  private val mailboxAName = "user.cyrus.mailboxA"
+  private val mailboxBName = "user.cyrus.mailboxB"
+  private val mailboxCName = "user.cyrus.mailboxC"
+  private val mailboxDName = "user.cyrus.mailboxD"
+  private val mailboxDNewName = "user.cyrus.mailboxDNew"
 
   private val createMailboxA_B_C = exec(imap("createFolder").createFolder(mailboxAName).check(ok))
     .exec(imap("createFolder").createFolder(mailboxBName).check(ok))
@@ -36,7 +36,7 @@ object MassiveOperationScenario {
         |0123456789""".stripMargin).check(ok)))
   private val setAllMessagesInMailboxASeenFlag = imap("storeAll").store(MessageRanges(From(1L)), StoreFlags.add(Silent.Enable(), "\\Seen")).check(ok)
   private val copyAllMessagesToMailboxB = imap("copy").copyMessage(MessageRanges(From(1L)), mailboxBName).check(ok)
-  private val moveAllMessagesToMailboxC = imap("move").moveMessage(MessageRanges(From(1L)), mailboxCName).check(ok)
+  private val moveAllMessagesToMailboxC = imap("move").moveMessage(MessageRanges(From(1L)), mailboxCName).check(debug)
   private val setAllMessagesInMailboxBDeletedFlagAndExpunge = exec(imap("storeAll").store(MessageRanges(From(1L)), StoreFlags.add(Silent.Enable(), "\\Deleted")).check(ok))
     .exec(imap("expunge").expunge().check(ok))
   private val deleteMailboxA_B_C = exec(imap("deleteFolder").deleteFolder(mailboxAName).check(ok))
