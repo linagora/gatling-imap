@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/*
+ * Backport of classes `ActionActor`, `ValidatedActionActor` and `ExitableActorDelegatingAction` from
+ * gatling-core package version 3.0.3, as they do not exist anymore in upper Gatling versions and
+ * it is easier to just reuse them.
+ */
+
 package com.linagora.gatling.imap.action
 
 import akka.actor.ActorRef
