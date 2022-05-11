@@ -41,9 +41,9 @@ class ImapMassiveOperationScenarioIT extends BaseIt(CyrusServer.start()) {
   scenario(MassiveOperationScenario(_))
 }
 
-//class ImapMassiveOperationScenarioJamesIT extends BaseIt(JamesServer.start()) {
-//  scenario(MassiveOperationScenario(_))
-//}
+class ImapMassiveOperationScenarioJamesIT extends BaseIt(JamesServer.start()) {
+  scenario(MassiveOperationScenario(_))
+}
 //
 //class ImapAuthenticationScenarioIT extends BaseIt(CyrusServer.start()) {
 //  scenario(ImapAuthenticationScenario(_))
