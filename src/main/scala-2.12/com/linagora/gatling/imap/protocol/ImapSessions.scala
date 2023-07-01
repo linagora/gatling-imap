@@ -1,6 +1,8 @@
 package com.linagora.gatling.imap.protocol
 
 import java.net.URI
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.Properties
 import java.util.function.Consumer
 
@@ -11,6 +13,8 @@ import com.yahoo.imapnio.async.client.{ImapAsyncClient, ImapAsyncSession, ImapAs
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.util.NameGen
 import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 import scala.util.control.NoStackTrace
 
@@ -50,8 +54,21 @@ private object ImapSession {
   def props(client: => ImapAsyncClient, protocol: ImapProtocol): Props =
     Props(new ImapSession(client, protocol))
 
-  val sslContext = SSLContext.getInstance("TLS")
-  sslContext.init(null, null, null)
+  private val TRUST_ALL_CERTS: Array[TrustManager] = Array[TrustManager](new X509TrustManager() {
+    override def getAcceptedIssuers: Array[X509Certificate] = return new Array[X509Certificate](0)
+
+    override def checkClientTrusted(certs: Array[X509Certificate], authType: String): Unit = {
+    }
+
+    override def checkServerTrusted(certs: Array[X509Certificate], authType: String): Unit = {
+    }
+  })
+  val sslContext = {
+    // Create a trust manager that does not validate certificate chains
+    val sc: SSLContext = SSLContext.getInstance("SSL")
+    sc.init(null, TRUST_ALL_CERTS, new SecureRandom)
+    sc
+  }
 }
 
 private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
