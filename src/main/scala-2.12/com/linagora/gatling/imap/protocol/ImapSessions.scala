@@ -16,6 +16,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
+import scala.util.Try
 import scala.util.control.NoStackTrace
 
 case class UserId(value: Long) extends AnyVal
@@ -72,7 +73,7 @@ private object ImapSession {
 }
 
 private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
-  val uri = new URI(s"${protocol.protocol}://${protocol.host}:${protocol.port}")
+  val uri: URI = buildURI(protocol).fold(throw _, identity)
   val config: Properties = protocol.config
   logger.debug(s"connecting to $uri with $config")
   val session: ImapAsyncSession = {
@@ -87,6 +88,23 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
       .get()
       .getSession
   }
+
+  private def buildURI(protocol: ImapProtocol): Either[IllegalArgumentException, URI] =
+    for {
+      host <- hostValidate(protocol.host)
+      uri <- Try(new URI(s"${protocol.protocol}://$host:${protocol.port}"))
+        .filter(uri1 => uri1.getHost != null && uri1.getHost.nonEmpty)
+        .toEither
+        .left.map(_ => new IllegalArgumentException(s"Invalid URI: $uri"))
+    } yield uri
+
+  private def hostValidate(host: String): Either[IllegalArgumentException, String] =
+    host match {
+      case null => scala.Left(new IllegalArgumentException("host is null"))
+      case h if h.isEmpty => scala.Left(new IllegalArgumentException("host is empty"))
+      case h if h.contains("_") => scala.Left(new IllegalArgumentException("host contains underscore: " + host))
+      case _ => scala.Right(host)
+    }
 
   override def receive: Receive = disconnected
 
