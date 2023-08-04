@@ -9,7 +9,8 @@ import java.util.function.Consumer
 import akka.actor.{Props, Stash}
 import com.linagora.gatling.imap.protocol.command._
 import com.yahoo.imapnio.async.client.ImapAsyncSession.DebugMode
-import com.yahoo.imapnio.async.client.{ImapAsyncClient, ImapAsyncSession, ImapAsyncSessionConfig}
+import com.yahoo.imapnio.async.client.{ImapAsyncClient, ImapAsyncSession, ImapAsyncSessionConfig, ImapFuture}
+import com.yahoo.imapnio.async.internal.ImapAsyncSessionImpl
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.util.NameGen
 import javax.net.ssl.SSLContext
@@ -75,19 +76,7 @@ private object ImapSession {
 private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) extends BaseActor with Stash with NameGen {
   val uri: URI = buildURI(protocol).fold(throw _, identity)
   val config: Properties = protocol.config
-  logger.debug(s"connecting to $uri with $config")
-  val session: ImapAsyncSession = {
-    val config = new ImapAsyncSessionConfig
-    config.setConnectionTimeoutMillis(50000)
-    config.setReadTimeoutMillis(60000)
-    val sniNames = null
-
-    val localAddress = null
-    client
-      .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession", ImapSession.sslContext)
-      .get()
-      .getSession
-  }
+  var session: ImapAsyncSession = null
 
   private def buildURI(protocol: ImapProtocol): Either[IllegalArgumentException, URI] =
     for {
@@ -111,6 +100,18 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
   def disconnected: Receive = {
     case Command.Connect(userId) =>
       logger.debug(s"got connect request, $userId connecting to $uri")
+
+      val config = new ImapAsyncSessionConfig
+      config.setConnectionTimeoutMillis(50000)
+      config.setReadTimeoutMillis(60000)
+      val sniNames = null
+      val localAddress = null
+
+      session = client
+        .createSession(uri, config, localAddress, sniNames, DebugMode.DEBUG_OFF, "ImapSession", ImapSession.sslContext)
+        .get()
+        .getSession
+
       context.become(connected)
       sender() ! Response.Connected(ImapResponses.empty)
     case Response.Disconnected(_) => ()
@@ -242,6 +243,7 @@ private class ImapSession(client: => ImapAsyncClient, protocol: ImapProtocol) ex
     case Command.Disconnect(userId) =>
       context.become(disconnected)
       val responseCallback: Consumer[java.lang.Boolean] = _ => {
+        session = null
         sender() ! Response.Disconnected(s"Disconnected command for ${userId.value}")
       }
       val future = session.close()
