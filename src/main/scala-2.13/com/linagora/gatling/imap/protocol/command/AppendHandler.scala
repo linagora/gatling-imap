@@ -5,12 +5,12 @@ import java.util.function.Consumer
 import java.util.regex.Pattern
 
 import akka.actor.{ActorRef, Props}
+import com.linagora.gatling.imap.action.BaseActor
 import com.linagora.gatling.imap.protocol._
 import com.linagora.gatling.imap.protocol.command.AppendHandler.crLfRegex
 import com.yahoo.imapnio.async.client.ImapAsyncSession
 import com.yahoo.imapnio.async.request.AppendCommand
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
-import io.gatling.core.akka.BaseActor
 import javax.mail.Flags
 
 import scala.collection.immutable.Seq

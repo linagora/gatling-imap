@@ -4,14 +4,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer
 
 import akka.actor.{ActorRef, Props}
+import com.linagora.gatling.imap.action.BaseActor
 import com.linagora.gatling.imap.protocol._
 import com.sun.mail.imap.protocol.IMAPResponse
 import com.yahoo.imapnio.async.client.ImapAsyncSession
 import com.yahoo.imapnio.async.request.IdleCommand
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
-import io.gatling.core.akka.BaseActor
-
-import scala.collection.immutable.Seq
 
 object IdleHandler {
   def props(session: ImapAsyncSession) = Props(new IdleHandler(session))

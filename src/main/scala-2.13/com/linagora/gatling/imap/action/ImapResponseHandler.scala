@@ -5,7 +5,6 @@ import com.linagora.gatling.imap.protocol.Response.Disconnected
 import com.linagora.gatling.imap.protocol.{ImapResponses, Response}
 import io.gatling.commons.stats.{KO, OK}
 import io.gatling.commons.validation.Failure
-import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 

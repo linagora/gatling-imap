@@ -10,7 +10,7 @@ import akka.actor.{Props, Stash}
 import com.linagora.gatling.imap.protocol.command._
 import com.yahoo.imapnio.async.client.ImapAsyncSession.DebugMode
 import com.yahoo.imapnio.async.client.{ImapAsyncClient, ImapAsyncSession, ImapAsyncSessionConfig}
-import io.gatling.core.akka.BaseActor
+import com.linagora.gatling.imap.action.BaseActor
 import io.gatling.core.util.NameGen
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager

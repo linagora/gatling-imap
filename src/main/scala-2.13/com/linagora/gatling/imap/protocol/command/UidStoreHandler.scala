@@ -3,13 +3,11 @@ package com.linagora.gatling.imap.protocol.command
 import java.util.function.Consumer
 
 import akka.actor.{ActorRef, Props}
+import com.linagora.gatling.imap.action.BaseActor
 import com.linagora.gatling.imap.protocol.{Command, ImapResponses, Response}
 import com.yahoo.imapnio.async.client.ImapAsyncSession
 import com.yahoo.imapnio.async.request.UidStoreFlagsCommand
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
-import io.gatling.core.akka.BaseActor
-
-import scala.collection.immutable.Seq
 
 object UidStoreHandler {
   def props(session: ImapAsyncSession) = Props(new UidStoreHandler(session))
