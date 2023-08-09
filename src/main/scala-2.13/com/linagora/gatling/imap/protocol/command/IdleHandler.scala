@@ -25,9 +25,9 @@ class IdleHandler(session: ImapAsyncSession) extends BaseActor {
       val idleCommand = new IdleCommand(new ConcurrentLinkedQueue[IMAPResponse]())
 
       val responseCallback: Consumer[ImapAsyncResponse] = responses => {
-        import collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
 
-        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.toSeq)
         logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
         self !  Response.Idled(responsesList)
       }

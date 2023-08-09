@@ -10,6 +10,6 @@ object Fixture {
 
   def feederBuilder(users: User*): FeederBuilder = () => {
     val feeder = users.map(user => Map("username" -> user.login, "password" -> user.password))
-    feeder.toIterator
+    feeder.iterator
   }
 }
