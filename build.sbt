@@ -6,7 +6,8 @@ scalaVersion := "2.13.11"
 
 val gatlingVersion = "3.9.5"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps")
+scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps",
+  "-Wconf:msg=Auto-application to \\`\\(\\)\\` is deprecated:s")
 
 enablePlugins(GatlingPlugin)
 
