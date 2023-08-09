@@ -6,15 +6,17 @@ import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{Command, Response, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
-class LoginHandlerSpec extends WordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
+class LoginHandlerSpec extends AnyWordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
   private val server: RunningServer = CyrusServer.start()
