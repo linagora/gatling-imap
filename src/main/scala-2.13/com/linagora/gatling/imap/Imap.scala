@@ -19,7 +19,7 @@ object Imap {
 
   private def executeCommand(command: ImapFuture[ImapAsyncResponse])(implicit executionContext: ExecutionContext) = {
     Future {
-      import collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       command.get().getResponseLines.asScala.toList
     }
   }

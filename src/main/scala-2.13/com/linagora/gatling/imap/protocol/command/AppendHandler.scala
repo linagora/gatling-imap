@@ -33,9 +33,9 @@ class AppendHandler(session: ImapAsyncSession) extends BaseActor {
       val crLfContent = crLfRegex.matcher(content).replaceAll("\r\n").getBytes(StandardCharsets.UTF_8)
 
       val responseCallback: Consumer[ImapAsyncResponse] = responses => {
-        import collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
 
-        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.toSeq)
         logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
 
         self ! Response.Appended(responsesList)

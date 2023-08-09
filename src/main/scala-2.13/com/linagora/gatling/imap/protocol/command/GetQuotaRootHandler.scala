@@ -20,9 +20,9 @@ class GetQuotaRootHandler(session: ImapAsyncSession) extends BaseActor {
       context.become(waitCallback(sender()))
 
       val responseCallback: Consumer[ImapAsyncResponse] = responses => {
-        import collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
 
-        val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+        val responsesList = ImapResponses(responses.getResponseLines.asScala.toSeq)
         logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
         self !  Response.QuotaRootResponse(responsesList)}
 

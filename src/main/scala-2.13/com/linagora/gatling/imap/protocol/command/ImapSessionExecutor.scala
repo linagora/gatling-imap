@@ -16,11 +16,11 @@ private[command] object ImapSessionExecutor {
   }
 
   def listenWithHandler[T](self: ActorRef, userId: UserId, getResponse: ImapResponses => Response, callback: Future[ImapAsyncResponse] => T)(logger: Logger)(response: ImapFuture[ImapAsyncResponse]): T = {
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
 
     callback(Future {
       val responses = response.get()
-      val responsesList = ImapResponses(responses.getResponseLines.asScala.to[Seq])
+      val responsesList = ImapResponses(responses.getResponseLines.asScala.toSeq)
       logger.trace(s"On response for $userId :\n ${responsesList.mkString("\n")}")
       self ! getResponse(responsesList)
       responses
