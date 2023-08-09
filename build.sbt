@@ -13,7 +13,7 @@ enablePlugins(GatlingPlugin)
 
 libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion exclude("io.gatling", "gatling-http")
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-http")
-libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "4.3.8"
+libraryDependencies += "com.yahoo.imapnio" % "imapnio.core" % "5.0.7"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16" % "test,it"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.6.20" % "it"
 libraryDependencies += "com.typesafe.akka" %% "akka-protobuf" % "2.6.20" % "it"
