@@ -2,13 +2,13 @@ package com.linagora.gatling.imap.protocol.command
 
 import java.util.function.Consumer
 
-import javax.mail.Flags
 import akka.actor.{ActorRef, Props}
+import com.linagora.gatling.imap.action.BaseActor
 import com.linagora.gatling.imap.protocol._
 import com.yahoo.imapnio.async.client.ImapAsyncSession
-import com.yahoo.imapnio.async.request.{FlagsAction, StoreFlagsCommand, UidFetchCommand}
+import com.yahoo.imapnio.async.request.{FlagsAction, StoreFlagsCommand}
 import com.yahoo.imapnio.async.response.ImapAsyncResponse
-import io.gatling.core.akka.BaseActor
+import javax.mail.Flags
 
 import scala.collection.immutable.Seq
 

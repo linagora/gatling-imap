@@ -26,7 +26,7 @@ import akka.actor.ActorRef
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{Action, ActorDelegatingAction, ExitableAction}
-import io.gatling.core.akka.BaseActor
+import com.linagora.gatling.imap.action.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
