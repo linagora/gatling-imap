@@ -7,12 +7,14 @@ import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{Command, ImapProtocol, ImapResponses, ImapSessions, Response, UserId}
 import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.duration._
 
-class ImapSessionsSpec extends WordSpec with Matchers with ImapTestUtils with BeforeAndAfterEach {
+class ImapSessionsSpec extends AnyWordSpec with Matchers with ImapTestUtils with BeforeAndAfterEach {
   val logger: Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
   private val server: RunningServer = CyrusServer.start()
