@@ -10,7 +10,7 @@ object ImapRenameFolderScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("createFolder").createFolder("Old folder").check(ok))
       .exec(imap("renameFolder").renameFolder("Old folder", "New folder").check(ok))
 }

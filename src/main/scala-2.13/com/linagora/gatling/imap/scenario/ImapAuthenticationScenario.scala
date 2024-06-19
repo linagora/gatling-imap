@@ -16,7 +16,7 @@ object ImapAuthenticationScenario {
   def apply(feeder: FeederBuilder): ScenarioBuilder = scenario("ImapAuthentication")
     .feed(feeder)
     .exec(imap("Connect").connect()).exitHereIfFailed
-    .exec(imap("login").login("${username}", "${password}").check(ok))
+    .exec(imap("login").login("#{username}", "#{password}").check(ok))
     .exec(imap("list").list("", "*").check(ok, hasFolder("INBOX")))
     .exec(imap("select").select("INBOX").check(ok, hasRecent(0)))
     .exec(imap("append").append(mailbox = "INBOX", flags = Some(Seq("\\Flagged")), date = None,

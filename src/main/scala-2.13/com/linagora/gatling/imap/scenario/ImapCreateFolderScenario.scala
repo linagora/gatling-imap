@@ -10,6 +10,6 @@ object ImapCreateFolderScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("createFolder").createFolder("Another INBOX").check(ok))
 }

@@ -10,7 +10,7 @@ object ImapDeleteFolderScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("createFolder").createFolder("Another INBOX").check(ok))
       .exec(imap("deleteFolder").deleteFolder("Another INBOX").check(ok))
 }

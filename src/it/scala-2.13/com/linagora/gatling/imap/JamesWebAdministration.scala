@@ -13,12 +13,12 @@ import scala.concurrent.Future
 
 class JamesWebAdministration(val baseUrl: URL) {
   // Create Akka system for thread and streaming management
-  implicit val system = ActorSystem()
+  implicit val system: ActorSystem = ActorSystem()
   system.registerOnTermination {
     System.exit(0)
   }
-  implicit val materializer = ActorMaterializer()
-  val wsClient = StandaloneAhcWSClient()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  val wsClient: StandaloneAhcWSClient = StandaloneAhcWSClient()
 
   def addDomain(domain: Domain): Future[Domain] = wsClient.url(s"$baseUrl/domains/${domain.value}")
     .put("")

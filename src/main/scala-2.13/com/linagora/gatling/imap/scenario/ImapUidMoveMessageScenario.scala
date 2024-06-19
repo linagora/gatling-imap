@@ -31,7 +31,7 @@ object ImapUidMoveMessageScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("select").select("INBOX").check(ok))
       .exec(populateInbox)
       .pause(1 second)

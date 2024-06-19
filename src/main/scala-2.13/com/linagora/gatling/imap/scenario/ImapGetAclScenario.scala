@@ -10,7 +10,7 @@ object ImapGetAclScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("select").select("INBOX").check(ok))
       .exec(imap("getAcl").getAcl("INBOX").check(ok))
 }
