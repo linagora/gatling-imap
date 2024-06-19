@@ -4,7 +4,7 @@ version := "1.0-SNAPSHOT"
 
 scalaVersion := "2.13.11"
 
-val gatlingVersion = "3.9.5"
+val gatlingVersion = "3.11.3"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps",
   "-Wconf:msg=Auto-application to \\`\\(\\)\\` is deprecated:s")
