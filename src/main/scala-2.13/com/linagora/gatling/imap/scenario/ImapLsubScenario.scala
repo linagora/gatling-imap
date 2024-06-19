@@ -28,7 +28,7 @@ object ImapLsubScenario extends Simulation {
     .feed(feeder)
     .pause(1 second)
     .exec(imap("Connect").connect()).exitHereIfFailed
-    .exec(imap("login").login("${username}", "${password}").check(ok))
+    .exec(imap("login").login("#{username}", "#{password}").check(ok))
     .exec(imap("lsub").list("", "*").check(ok))
 
 }

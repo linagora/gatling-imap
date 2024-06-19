@@ -10,6 +10,6 @@ object ImapNoopScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("noop").noop().check(ok))
 }

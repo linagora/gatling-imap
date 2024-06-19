@@ -28,7 +28,7 @@ object ImapUidStoreScenario extends Simulation {
     .feed(feeder)
     .pause(1 second)
     .exec(imap("Connect").connect()).exitHereIfFailed
-    .exec(imap("login").login("${username}", "${password}").check(ok))
+    .exec(imap("login").login("#{username}", "#{password}").check(ok))
     .during(1 minute) {
         exec(imap("list").list("", "*").check(ok, hasFolder("INBOX")))
         .pause(200 milli)

@@ -10,6 +10,6 @@ object ImapSubscribeScenario {
     scenario("Imap")
       .feed(feeder)
       .exec(imap("Connect").connect()).exitHereIfFailed
-      .exec(imap("login").login("${username}", "${password}").check(ok))
+      .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("subscribe").subscribe("INBOX").check(ok))
 }

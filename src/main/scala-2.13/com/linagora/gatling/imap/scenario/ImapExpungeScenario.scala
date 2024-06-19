@@ -33,7 +33,7 @@ object ImapExpungeScenario extends Simulation with LazyLogging {
     )
   }
 
-  private val populateMailbox = exec(imap("append").append("INBOX", "${flags}", Option.empty[Calendar],
+  private val populateMailbox = exec(imap("append").append("INBOX", "#{flags}", Option.empty[Calendar],
     """From: expeditor@example.com
       |To: recipient@example.com
       |Subject: test subject
@@ -48,7 +48,7 @@ object ImapExpungeScenario extends Simulation with LazyLogging {
     .feed(feeder)
     .pause(1 second)
     .exec(imap("Connect").connect()).exitHereIfFailed
-    .exec(imap("login").login("${username}", "${password}").check(ok))
+    .exec(imap("login").login("#{username}", "#{password}").check(ok))
     .exec(imap("select").select("INBOX").check(ok))
     .exec(populateInbox)
     .exec(imap("expunge").expunge().check(ok))
