@@ -12,6 +12,6 @@ object ImapGetQuotaScenario {
       .exec(imap("Connect").connect()).exitHereIfFailed
       .exec(imap("login").login("#{username}", "#{password}").check(ok))
       .exec(imap("select").select("INBOX").check(ok))
-      .exec(imap("setQuota").setQuota("INBOX (STORAGE 512)").check(no))
-      .exec(imap("getQuota").getQuota("INBOX").check(bad))
+      .exec(imap("setQuota").setQuota("#private&#{username} (STORAGE 512)").check(no)) // user does not have admin rights
+      .exec(imap("getQuota").getQuota("#private&#{username}").check(ok))
 }
