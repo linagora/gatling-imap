@@ -18,7 +18,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16" % "test,it"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.6.20" % "it"
 libraryDependencies += "com.typesafe.akka" %% "akka-protobuf" % "2.6.20" % "it"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.20" % "it"
-libraryDependencies += "org.testcontainers" % "testcontainers" % "1.17.1" % "it"
+libraryDependencies += "org.testcontainers" % "testcontainers" % "2.0.2" % "it"
 libraryDependencies += "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.11" % "it"
 
 
