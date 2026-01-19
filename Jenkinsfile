@@ -15,7 +15,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'docker pull linagora/tmail-backend:memory-branch-master'
-                sh 'sbt GatlingIt/test'
+                sh 'sbt -Dapi.version=1.43 GatlingIt/test'
             }
             post {
                 always {
