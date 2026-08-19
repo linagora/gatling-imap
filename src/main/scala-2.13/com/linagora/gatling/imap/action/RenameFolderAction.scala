@@ -1,32 +1,28 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.yahoo.imapnio.async.request.RenameFolderCommand
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
 
 import scala.collection.immutable.Seq
 
-object RenameFolderAction {
-  def props(imapContext: ImapActionContext, requestName: String, checks: Seq[ImapCheck], oldFolder: Expression[String], newFolder: Expression[String]) =
-    Props(new RenameFolderAction(imapContext, requestName, checks, oldFolder, newFolder))
-}
-
-class RenameFolderAction(val imapContext: ImapActionContext,
-                         val requestName: String,
-                         override val checks: Seq[ImapCheck],
+class RenameFolderAction(imapContext: ImapActionContext,
+                         requestName: String,
+                         checks: Seq[ImapCheck],
                          oldFolder: Expression[String],
-                         newFolder: Expression[String]) extends ValidatedActionActor with ImapActionActor {
+                         newFolder: Expression[String]) extends ImapRequestAction(imapContext, requestName, checks) {
 
-  override protected def executeOrFail(session: Session): Validation[_] = {
+  override def sendRequest(session: Session): Validation[Unit] = {
+    val start = clock.nowMillis
     for {
       oldFolder <- oldFolder(session)
       newFolder <- newFolder(session)
+      s <- sessionFor(session)
     } yield {
-      val id: Long = session.userId
-      val handler = handleResponse(session, imapContext.clock.nowMillis)
-      sessions.tell(Command.RenameFolder(UserId(id), oldFolder, newFolder), handler)
+      val future = s.execute(new RenameFolderCommand(oldFolder, newFolder))
+      future.setDoneCallback(responses => handleResponse(session, start)(toImapResponses(responses)))
+      future.setExceptionCallback(e => handleError(session, start)(e))
     }
   }
 }

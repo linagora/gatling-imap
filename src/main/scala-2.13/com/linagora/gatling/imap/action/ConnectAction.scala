@@ -1,17 +1,15 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.linagora.gatling.imap.protocol.{ImapResponses, UserId}
+import io.gatling.commons.validation.Success
 import io.gatling.core.session.Session
 
-object ConnectAction {
-  def props(imapContext: ImapActionContext, requestName: String): Props =
-    Props(new ConnectAction(imapContext, requestName))
-}
-
-class ConnectAction(val imapContext: ImapActionContext, val requestName: String) extends ActionActor with ImapActionActor {
-  override def execute(session: Session): Unit = {
-    sessions.tell(Command.Connect(UserId(session.userId)), handleResponse(session, imapContext.clock.nowMillis))
+class ConnectAction(imapContext: ImapActionContext, requestName: String) extends ImapRequestAction(imapContext, requestName, Seq.empty) {
+  override def sendRequest(session: Session): io.gatling.commons.validation.Validation[Unit] = {
+    val start = clock.nowMillis
+    components.connect(UserId(session.userId))(
+      _ => handleResponse(session, start)(ImapResponses.empty),
+      e => handleError(session, start)(e))
+    Success(())
   }
-
 }

@@ -1,34 +1,30 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.command.{MessageRange, MessageRanges}
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.linagora.gatling.imap.protocol.command.MessageRanges
+import com.yahoo.imapnio.async.request.SearchCommand
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
 import javax.mail.search.SearchTerm
 
 import scala.collection.immutable.Seq
 
-object SearchAction {
-  def props(imapContext: ImapActionContext, requestName: String, checks: Seq[ImapCheck], sequence: Expression[MessageRanges], searchTerm: Expression[SearchTerm]) =
-    Props(new SearchAction(imapContext, requestName, checks, sequence, searchTerm))
-}
-
-class SearchAction(val imapContext: ImapActionContext,
-                   val requestName: String,
-                   override val checks: Seq[ImapCheck],
+class SearchAction(imapContext: ImapActionContext,
+                   requestName: String,
+                   checks: Seq[ImapCheck],
                    sequence: Expression[MessageRanges],
-                   searchTerm: Expression[SearchTerm]) extends ValidatedActionActor with ImapActionActor {
+                   searchTerm: Expression[SearchTerm]) extends ImapRequestAction(imapContext, requestName, checks) {
 
-  override protected def executeOrFail(session: Session): Validation[_] = {
+  override def sendRequest(session: Session): Validation[Unit] = {
+    val start = clock.nowMillis
     for {
       sequence <- sequence(session)
       searchTerm <- searchTerm(session)
+      s <- sessionFor(session)
     } yield {
-      val id: Long = session.userId
-      val handler = handleResponse(session, imapContext.clock.nowMillis)
-      sessions.tell(Command.Search(UserId(id), sequence, searchTerm), handler)
+      val future = s.execute(new SearchCommand(sequence.asImap, searchTerm, null))
+      future.setDoneCallback(responses => handleResponse(session, start)(toImapResponses(responses)))
+      future.setExceptionCallback(e => handleError(session, start)(e))
     }
   }
 }

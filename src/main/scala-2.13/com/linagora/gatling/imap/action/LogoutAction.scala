@@ -1,29 +1,24 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.yahoo.imapnio.async.request.LogoutCommand
 import io.gatling.commons.validation.Validation
-import io.gatling.core.session._
+import io.gatling.core.session.Session
 
 import scala.collection.immutable.Seq
 
+class LogoutAction(imapContext: ImapActionContext,
+                   requestName: String,
+                   checks: Seq[ImapCheck]) extends ImapRequestAction(imapContext, requestName, checks) {
 
-object LogoutAction {
-  def props(imapContext: ImapActionContext, requestName: String, checks: Seq[ImapCheck]) =
-    Props(new LogoutAction(imapContext, requestName, checks))
-}
-
-class LogoutAction(val imapContext: ImapActionContext,
-                   val requestName: String,
-                   override val checks: Seq[ImapCheck]) extends ValidatedActionActor with ImapActionActor {
-
-  override protected def executeOrFail(session: Session): Validation[_] = {
-    Validation.unit
-      .map(_ => {
-        val id: Long = session.userId
-        val handler = handleResponse(session, imapContext.clock.nowMillis)
-        sessions.tell(Command.Logout(UserId(id)), handler)
-      })
+  override def sendRequest(session: Session): Validation[Unit] = {
+    val start = clock.nowMillis
+    for {
+      s <- sessionFor(session)
+    } yield {
+      val future = s.execute(new LogoutCommand())
+      future.setDoneCallback(responses => handleResponse(session, start)(toImapResponses(responses)))
+      future.setExceptionCallback(e => handleError(session, start)(e))
+    }
   }
 }

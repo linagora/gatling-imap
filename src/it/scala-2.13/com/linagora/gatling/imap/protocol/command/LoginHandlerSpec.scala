@@ -1,10 +1,7 @@
 package com.linagora.gatling.imap.protocol.command
 
-import akka.actor.ActorSystem
-import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
-import com.linagora.gatling.imap.protocol.{Command, Response, UserId}
-import com.linagora.gatling.imap.{Fixture, ImapTestUtils, JamesServer, RunningServer}
+import com.linagora.gatling.imap.{Fixture, Imap, ImapTestUtils, JamesServer, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -13,6 +10,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.slf4j
 import org.slf4j.LoggerFactory
 
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
@@ -27,22 +25,17 @@ class LoginHandlerSpec extends AnyWordSpec with ImapTestUtils with BeforeAndAfte
   }
 
   override protected def afterEach(): Unit = {
-    system.terminate()
     server.stop()
   }
 
-  implicit lazy val system: ActorSystem = ActorSystem("LoginHandlerSpec")
-  "Login handler" should {
+  "Login command" should {
     "send the response back when logged in" in {
-      val probe = TestProbe()
-      val sessionFuture = connect(server.mappedImapPort())
-      sessionFuture.onComplete(session => {
-        val handler = system.actorOf(LoginHandler.props(session.get))
-        probe.send(handler, Command.Login(UserId(1), bart))
-      })
-      probe.expectMsgPF(1.minute) {
-        case Response.LoggedIn(responses) => responses.isOk shouldBe true
-      }
+      val responses: List[IMAPResponse] = Await.result(
+        connect(server.mappedImapPort()).flatMap { implicit session =>
+          Imap.login(bart.login, bart.password)
+        },
+        1.minute)
+      responses.last.isOK shouldBe true
     }
   }
 

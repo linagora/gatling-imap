@@ -1,28 +1,29 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
+import java.util.concurrent.ConcurrentLinkedQueue
+
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.sun.mail.imap.protocol.IMAPResponse
+import com.yahoo.imapnio.async.request.IdleCommand
 import io.gatling.commons.validation.Validation
-import io.gatling.core.session._
+import io.gatling.core.session.Session
 
 import scala.collection.immutable.Seq
 
-object IdleAction {
-  def props(imapContext: ImapActionContext, requestName: String, checks: Seq[ImapCheck]) =
-    Props(new IdleAction(imapContext, requestName, checks))
-}
+class IdleAction(imapContext: ImapActionContext,
+                 requestName: String,
+                 checks: Seq[ImapCheck]) extends ImapRequestAction(imapContext, requestName, checks) {
 
-class IdleAction(val imapContext: ImapActionContext,
-                 val requestName: String,
-                 override val checks: Seq[ImapCheck]) extends ValidatedActionActor with ImapActionActor {
-
-  override protected def executeOrFail(session: Session): Validation[_] = {
-    Validation.unit
-      .map(_ => {
-        val id: Long = session.userId
-        val handler = handleResponse(session, imapContext.clock.nowMillis)
-        sessions.tell(Command.Idle(UserId(id)), handler)
-      })
+  override def sendRequest(session: Session): Validation[Unit] = {
+    val start = clock.nowMillis
+    for {
+      s <- sessionFor(session)
+    } yield {
+      val idleCommand = new IdleCommand(new ConcurrentLinkedQueue[IMAPResponse]())
+      s.execute(idleCommand).setExceptionCallback(e => handleError(session, start)(e))
+      val terminationFuture = s.terminateCommand(idleCommand)
+      terminationFuture.setDoneCallback(responses => handleResponse(session, start)(toImapResponses(responses)))
+      terminationFuture.setExceptionCallback(e => handleError(session, start)(e))
+    }
   }
 }
