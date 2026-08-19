@@ -1,30 +1,26 @@
 package com.linagora.gatling.imap.action
 
-import akka.actor.Props
 import com.linagora.gatling.imap.check.ImapCheck
-import com.linagora.gatling.imap.protocol.{Command, UserId}
+import com.yahoo.imapnio.async.request.SubscribeFolderCommand
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
 
 import scala.collection.immutable.Seq
 
-object SubscribeAction {
-  def props(imapContext: ImapActionContext, requestName: String, checks: Seq[ImapCheck], mailbox: Expression[String]) =
-    Props(new SubscribeAction(imapContext, requestName, checks, mailbox))
-}
+class SubscribeAction(imapContext: ImapActionContext,
+                      requestName: String,
+                      checks: Seq[ImapCheck],
+                      mailbox: Expression[String]) extends ImapRequestAction(imapContext, requestName, checks) {
 
-class SubscribeAction(val imapContext: ImapActionContext,
-                      val requestName: String,
-                      override val checks: Seq[ImapCheck],
-                      mailbox: Expression[String]) extends ValidatedActionActor with ImapActionActor {
-
-  override protected def executeOrFail(session: Session): Validation[_] = {
+  override def sendRequest(session: Session): Validation[Unit] = {
+    val start = clock.nowMillis
     for {
       mailbox <- mailbox(session)
+      s <- sessionFor(session)
     } yield {
-      val id: Long = session.userId
-      val handler = handleResponse(session, imapContext.clock.nowMillis)
-      sessions.tell(Command.Subscribe(UserId(id), mailbox), handler)
+      val future = s.execute(new SubscribeFolderCommand(mailbox))
+      future.setDoneCallback(responses => handleResponse(session, start)(toImapResponses(responses)))
+      future.setExceptionCallback(e => handleError(session, start)(e))
     }
   }
 }
