@@ -32,6 +32,24 @@ abstract class ImapRequestAction(val imapContext: ImapActionContext, val name: S
     else Success(s)
   }
 
+  // ponytail: ImapAsyncSession.execute() throws ImapAsyncClientException synchronously when the
+  // channel is already closed (e.g. server dropped the connection between commands). The old actor
+  // code had a disconnected/connected state machine that prevented reaching execute(); the migration
+  // dropped it, so the throw propagated as a Gatling "crash" (logged twice) and cascaded to every
+  // remaining action. Catch it here and treat it as a normal KO. Failure (no session) is also a KO
+  // instead of logRequestCrash so it stays off the error log. See issue #89.
+  override def execute(session: Session): Unit = {
+    val start = clock.nowMillis
+    try {
+      sendRequest(session) match {
+        case Failure(error) => ko(session, start, error)
+        case _ =>
+      }
+    } catch {
+      case e: Exception => handleError(session, start)(e)
+    }
+  }
+
   protected def toImapResponses(responses: ImapAsyncResponse): ImapResponses = {
     import scala.jdk.CollectionConverters._
     ImapResponses(responses.getResponseLines.asScala.toSeq)
@@ -47,6 +65,11 @@ abstract class ImapRequestAction(val imapContext: ImapActionContext, val name: S
 
   protected def handleError(session: Session, start: Long)(e: Exception): Unit = {
     logger.error(s"$name command failed", e)
+    // ponytail: any exception reaching here means the channel is dead/closing (channel exception,
+    // timeout, disconnect, or execute() on an already-closed channel). Drop the session from the
+    // map so the following actions fail with a clean KO ("session not connected") instead of
+    // repeating OPERATION_PROHIBITED_ON_CLOSED_CHANNEL for every remaining request. See issue #89.
+    components.disconnect(UserId(session.userId))
     ko(session, start, e.getMessage)
   }
 

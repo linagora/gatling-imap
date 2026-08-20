@@ -5,8 +5,9 @@ import java.util.Properties
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{ImapComponents, ImapProtocol, ImapResponses, UserId}
 import com.linagora.gatling.imap.{Fixture, ImapTestUtils, JamesServer, RunningServer}
+import com.yahoo.imapnio.async.exception.ImapAsyncClientException
 import com.yahoo.imapnio.async.request.LoginCommand
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.slf4j
@@ -16,18 +17,22 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.jdk.CollectionConverters._
 
-class ImapSessionsSpec extends AnyWordSpec with Matchers with ImapTestUtils with BeforeAndAfterEach {
+class ImapSessionsSpec extends AnyWordSpec with Matchers with ImapTestUtils with BeforeAndAfterAll with BeforeAndAfterEach {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
-  private val server: RunningServer = JamesServer.start()
+  private var server: RunningServer = _
+
+  override def beforeAll(): Unit = {
+    server = JamesServer.start()
+  }
 
   override def beforeEach(): Unit = {
     server.addDomain(Fixture.simpson)
     server.addUser(bart)
   }
 
-  override protected def afterEach(): Unit = {
-    server.stop()
+  override def afterAll(): Unit = {
+    if (server != null) server.stop()
   }
 
   "the imap sessions" should {
@@ -46,6 +51,43 @@ class ImapSessionsSpec extends AnyWordSpec with Matchers with ImapTestUtils with
         10.seconds)
       responses.isOk shouldBe true
       components.disconnect(UserId(1))
+    }
+
+    "drop the session on disconnect so a later sessionFor returns null" in {
+      // ImapRequestAction.handleError calls components.disconnect to evict a dead session,
+      // so the following actions fail with a clean KO instead of repeating
+      // OPERATION_PROHIBITED_ON_CLOSED_CHANNEL. See issue #89.
+      implicit val executionContext: ExecutionContext = ExecutionContext.global
+      val protocol = ImapProtocol("localhost", server.mappedImapPort(), "imap", new Properties())
+
+      val components = ImapComponents(protocol)
+      val connected = Promise[com.yahoo.imapnio.async.client.ImapAsyncSession]()
+      components.connect(UserId(2))(s => connected.success(s), e => connected.failure(e))
+      Await.result(connected.future, 10.seconds)
+      components.sessionFor(UserId(2)) should not be null
+
+      components.disconnect(UserId(2))
+      components.sessionFor(UserId(2)) shouldBe null
+    }
+
+    "throw OPERATION_PROHIBITED_ON_CLOSED_CHANNEL when executing on a closed session" in {
+      // This is the synchronous throw ImapRequestAction.execute catches and routes to
+      // handleError instead of letting it crash the action. See issue #89.
+      implicit val executionContext: ExecutionContext = ExecutionContext.global
+      val protocol = ImapProtocol("localhost", server.mappedImapPort(), "imap", new Properties())
+
+      val components = ImapComponents(protocol)
+      val connected = Promise[com.yahoo.imapnio.async.client.ImapAsyncSession]()
+      components.connect(UserId(3))(s => connected.success(s), e => connected.failure(e))
+      val session = Await.result(connected.future, 10.seconds)
+
+      session.close().get()
+
+      val thrown = intercept[ImapAsyncClientException] {
+        session.execute(new LoginCommand(bart.login, bart.password))
+      }
+      thrown.getFailureType shouldBe ImapAsyncClientException.FailureType.OPERATION_PROHIBITED_ON_CLOSED_CHANNEL
+      components.disconnect(UserId(3))
     }
   }
 }
