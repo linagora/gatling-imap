@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{Command, ImapProtocol, ImapResponses, ImapSessions, Response, UserId}
-import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
+import com.linagora.gatling.imap.{Fixture, ImapTestUtils, JamesServer, RunningServer}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -17,9 +17,10 @@ import scala.concurrent.duration._
 class ImapSessionsSpec extends AnyWordSpec with Matchers with ImapTestUtils with BeforeAndAfterEach {
   val logger: Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
-  private val server: RunningServer = CyrusServer.start()
+  private val server: RunningServer = JamesServer.start()
 
   override def beforeEach(): Unit = {
+    server.addDomain(Fixture.simpson)
     server.addUser(bart)
   }
 
