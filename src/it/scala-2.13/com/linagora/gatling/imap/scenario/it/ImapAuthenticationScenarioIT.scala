@@ -3,7 +3,7 @@ package com.linagora.gatling.imap.scenario.it
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.PreDef.imap
 import com.linagora.gatling.imap.scenario.{ImapAuthenticationScenario, ImapCapabilityScenario, ImapCheckScenario, ImapCloseScenario, ImapCompressScenario, ImapCopyMessageScenario, ImapCreateFolderScenario, ImapDeleteFolderScenario, ImapEnableScenario, ImapExamineFolderScenario, ImapExpungeScenario, ImapGetAclScenario, ImapGetQuotaRootScenario, ImapGetQuotaScenario, ImapIdleScenario, ImapLogoutScenario, ImapLsubScenario, ImapMoveMessageScenario, ImapMyRightsScenario, ImapNamespaceScenario, ImapNoopScenario, ImapRenameFolderScenario, ImapSearchScenario, ImapSimpleScenario, ImapStatusScenario, ImapSubscribeScenario, ImapUIDFetchScenario, ImapUidCopyMessageScenario, ImapUidExpungeMessageScenario, ImapUidMoveMessageScenario, ImapUidStoreScenario, ImapUnselectScenario, ImapUnsubscribeScenario}
-import com.linagora.gatling.imap.{CyrusServer, Fixture, JamesServer, RunningServer}
+import com.linagora.gatling.imap.{Fixture, JamesServer, RunningServer}
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.protocol.Protocol
@@ -26,26 +26,6 @@ abstract class BaseIt(server: RunningServer) extends GatlingFunSpec {
   }
 }
 
-
-class ImapAuthenticationScenarioIT extends BaseIt(CyrusServer.start()) {
-  scenario(ImapAuthenticationScenario(_))
-}
-
-class ImapExpungeScenarioIT extends BaseIt(CyrusServer.start()) {
-  scenario(ImapExpungeScenario(_))
-}
-
-class ImapSimpleScenarioIT extends BaseIt(CyrusServer.start()) {
-  scenario(ImapSimpleScenario(_))
-}
-
-class ImapUIDFetchScenarioIT extends BaseIt(CyrusServer.start()) {
-  scenario(ImapUIDFetchScenario(_))
-}
-
-class ImapUidStoreScenarioIT extends BaseIt(CyrusServer.start()) {
-  scenario(ImapUidStoreScenario(_))
-}
 
 class ImapAuthenticationScenarioJamesIT extends BaseIt(JamesServer.start()) {
   scenario(ImapAuthenticationScenario(_))

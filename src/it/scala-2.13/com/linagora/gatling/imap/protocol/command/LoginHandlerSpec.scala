@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import com.linagora.gatling.imap.Fixture.bart
 import com.linagora.gatling.imap.protocol.{Command, Response, UserId}
-import com.linagora.gatling.imap.{CyrusServer, ImapTestUtils, RunningServer}
+import com.linagora.gatling.imap.{Fixture, ImapTestUtils, JamesServer, RunningServer}
 import com.sun.mail.imap.protocol.IMAPResponse
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -19,9 +19,10 @@ import scala.concurrent.duration._
 class LoginHandlerSpec extends AnyWordSpec with ImapTestUtils with BeforeAndAfterEach with Matchers {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass.getCanonicalName)
 
-  private val server: RunningServer = CyrusServer.start()
+  private val server: RunningServer = JamesServer.start()
 
   override def beforeEach(): Unit = {
+    server.addDomain(Fixture.simpson)
     server.addUser(bart)
   }
 
