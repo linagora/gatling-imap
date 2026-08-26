@@ -2,9 +2,9 @@ name := "gatling-imap"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.18"
 
-val gatlingVersion = "3.13.5"
+val gatlingVersion = "3.15.1"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-language:postfixOps",
   "-Wconf:msg=Auto-application to \\`\\(\\)\\` is deprecated:s")
