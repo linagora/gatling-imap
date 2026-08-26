@@ -19,10 +19,10 @@ abstract class BaseIt(server: RunningServer) extends GatlingFunSpec {
   before(server.addUser(bart))
   after(server.stop())
 
-  protected def scenario(scenario: FeederBuilder => ScenarioBuilder) = {
-    scenario(Fixture.feederBuilder(bart)).actionBuilders.reverse.foreach(
-      spec _
-    )
+  // ponytail: gatling 3.15 made ScenarioBuilder.actionBuilders private[core], so the
+  // whole scenario is registered as a single Executable instead of extracting each action.
+  protected def scenario(scenario: FeederBuilder => ScenarioBuilder): Unit = {
+    spec(scenario(Fixture.feederBuilder(bart)))
   }
 }
 
